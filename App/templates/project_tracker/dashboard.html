@@ -1,0 +1,110 @@
+{% extends "project_tracker/base.html" %}
+
+{% block title %}Executive Dashboard{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block content %}
+
+<div class="shell">
+    <div class="topbar">
+        <div class="heading-group">
+            <small>Overview</small>
+            <h1>Executive Dashboard</h1>
+        </div>
+
+        <a href="{{ url_for('projects.create_project') }}" class="action-btn">
+            <span class="plus">+</span>
+            Add Project
+        </a>
+    </div>
+
+    <div class="panel">
+        <div class="section-kicker">Portfolio Summary</div>
+        <h2 class="section-title">All Projects</h2>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="label">Projects in Scope</div>
+                <div class="value">{{ stats.project_count }}</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="label">In Progress</div>
+                <div class="value">{{ stats.in_progress_count }}</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="label">High Priority</div>
+                <div class="value">{{ stats.high_priority_count }}</div>
+            </div>
+
+            <div class="summary-card blue">
+                <div class="label">Overall Budget Noted</div>
+                <div class="value">{{ stats.budget_display }}</div>
+            </div>
+        </div>
+
+        {% if projects %}
+            <div class="project-list">
+                {% for project in projects %}
+                    <a 
+                        href="{{ url_for('projects.project_detail', project_id=project.id) }}" 
+                        class="project-card"
+                    >
+                        <div>
+                            <div class="project-meta-top">
+                                <div class="project-title">{{ project.name }}</div>
+                                <span class="badge status">{{ project.status }}</span>
+                                <span class="badge priority">{{ project.priority }}</span>
+                            </div>
+
+                            <div class="project-focus">
+                                {{ project.current_focus or "No current focus recorded" }}
+                            </div>
+
+                            {% if project.outgoing_relationships %}
+                                <div class="project-extra">
+                                    Related Project:
+                                    <span class="inline-pill">
+                                        {{ project.outgoing_relationships[0].target_project.name }}
+                                    </span>
+                                </div>
+                            {% elif project.incoming_relationships %}
+                                <div class="project-extra">
+                                    Depends on:
+                                    <span class="inline-pill depends">
+                                        {{ project.incoming_relationships[0].source_project.name }}
+                                    </span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="progress-wrap">
+                            <div 
+                                class="progress-ring"
+                                style="--progress-deg: {{ project.progress_percent * 3.6 }}deg;"
+                            >
+                                <div class="progress-content">
+                                    <strong>{{ project.progress_percent }}%</strong>
+                                    <span>Tasks</span>
+
+                                    {% if project.total_tasks > 0 %}
+                                        <span>{{ project.completed_tasks_count }} / {{ project.total_tasks }}</span>
+                                    {% else %}
+                                        <span>TBA</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                No projects have been created yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

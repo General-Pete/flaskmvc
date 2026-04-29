@@ -1,0 +1,134 @@
+{% extends "project_tracker/base.html" %}
+
+{% block title %}Project Report{% endblock %}
+{% block body_class %}report-body{% endblock %}
+
+{% block content %}
+
+<div class="top-strip"></div>
+
+<div class="report-wrapper">
+    <a 
+        href="{{ url_for('projects.project_detail', project_id=project.id) }}" 
+        class="back"
+    >
+        ← Back to Project
+    </a>
+
+    <div class="report-header">
+        <div>
+            <h1>{{ project.id }}. {{ project.name }}</h1>
+
+            <div class="sub">
+                {{ project.project_type or "Project" }}
+                |
+                {{ project.current_focus or "No current focus recorded" }}
+            </div>
+        </div>
+
+        <div class="pills">
+            <div class="pill green">{{ project.status }}</div>
+            <div class="pill red">{{ project.priority }}</div>
+        </div>
+    </div>
+
+    <div class="top-grid">
+        <div class="report-card">
+            <h2>Project Objective</h2>
+            <p>
+                {{ project.description or "No project objective has been recorded." }}
+            </p>
+        </div>
+
+        <div class="report-card blue">
+            <h2>Budget</h2>
+            <div class="report-budget">{{ project.budget_display }}</div>
+            <p>{{ project.budget_tracker_value or "Tracker value" }}</p>
+        </div>
+
+        <div class="report-card green">
+            <h2>Expected Outcome</h2>
+            <p>
+                {{ project.expected_outcome or "No expected outcome has been recorded." }}
+            </p>
+        </div>
+    </div>
+
+    <div class="grid-3">
+        <div class="report-card list-card">
+            <h3>Completed / Established</h3>
+
+            {% if completed_items %}
+                <ul>
+                    {% for item in completed_items %}
+                        <li>{{ item.text }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No completed items recorded.</p>
+            {% endif %}
+        </div>
+
+        <div class="report-card list-card">
+            <h3>Currently in Progress</h3>
+
+            {% if in_progress_items %}
+                <ul>
+                    {% for item in in_progress_items %}
+                        <li>{{ item.text }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No in-progress items recorded.</p>
+            {% endif %}
+        </div>
+
+        <div class="report-card list-card">
+            <h3>Risks / Issues</h3>
+
+            {% if risk_items %}
+                <ul>
+                    {% for item in risk_items %}
+                        <li>{{ item.text }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No risks or issues recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="next-steps">
+        <h3>Recommended Next Steps</h3>
+
+        <div class="next-list">
+            {% if next_step_items %}
+                {% for item in next_step_items %}
+                    <div class="step">
+                        {{ loop.index }}. {{ item.text }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="step">
+                    No recommended next steps recorded.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn primary" onclick="window.print()" type="button">
+            Print Report
+        </button>
+
+        <a href="{{ url_for('projects.dashboard') }}" class="btn secondary">
+            Dashboard
+        </a>
+    </div>
+
+    <div class="footer">
+        Ministry of Homeland Security | ICT Project Dashboard
+    </div>
+</div>
+
+{% endblock %}

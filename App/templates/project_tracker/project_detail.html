@@ -1,0 +1,157 @@
+{% extends "project_tracker/base.html" %}
+
+{% block title %}{{ project.name }}{% endblock %}
+{% block body_class %}light-body{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+    <a class="back" href="{{ url_for('projects.dashboard') }}">
+        ← Back to Projects
+    </a>
+
+    <div class="card">
+        <div class="header">
+            <div>
+                <div class="title-row">
+                    <h1>{{ project.name }}</h1>
+                    <span class="badge status">{{ project.status }}</span>
+                    <span class="badge priority">{{ project.priority }}</span>
+                </div>
+
+                <div class="meta">
+                    {{ project.project_type or "Project" }}
+                    |
+                    {{ project.current_focus or "No current focus recorded" }}
+                </div>
+            </div>
+
+            <a 
+                href="{{ url_for('projects.task_management', project_id=project.id) }}" 
+                class="manage-btn"
+            >
+                ⚙ Manage Tasks
+            </a>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-box">
+                <div class="info-title">Project Objective</div>
+                <p>
+                    {{ project.description or "No project description has been recorded." }}
+                </p>
+            </div>
+
+            <div class="info-box budget-box">
+                <div class="info-title">Budget</div>
+                <div class="budget-amount">{{ project.budget_display }}</div>
+                <div class="tracker">
+                    {{ project.budget_tracker_value or "Tracker Value" }}
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="other-header">
+                    <div class="info-title" style="margin-bottom:0;">
+                        Other Info
+                    </div>
+
+                    <div class="slider-nav">
+                        <button type="button" id="prevInfo">←</button>
+                        <button type="button" id="nextInfo">→</button>
+                    </div>
+                </div>
+
+                <p id="otherInfoText">{{ other_info_items[0] }}</p>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-label-row">
+                <h3>Overall Progress</h3>
+                <span>{{ project.progress_percent }}% Complete</span>
+            </div>
+
+            <div class="progress-bar">
+                <div 
+                    class="progress-fill" 
+                    style="--progress-percent: {{ project.progress_percent }}%;"
+                ></div>
+            </div>
+        </div>
+
+        <div class="task-columns">
+            <div class="task-col">
+                <h2>Completed Tasks</h2>
+
+                {% if completed_tasks %}
+                    {% for task in completed_tasks %}
+                        <div class="mini-task">
+                            <strong>{{ task.title }}</strong>
+                            <span>
+                                {{ task.description or "No description recorded." }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="mini-task">
+                        <strong>No completed tasks</strong>
+                        <span>Completed tasks will appear here.</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="task-col">
+                <h2>In Progress Tasks</h2>
+
+                {% set active_tasks = in_progress_tasks + todo_tasks %}
+
+                {% if active_tasks %}
+                    {% for task in active_tasks %}
+                        <div class="mini-task">
+                            <strong>{{ task.title }}</strong>
+                            <span>
+                                {{ task.description or "No description recorded." }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="mini-task">
+                        <strong>No active tasks</strong>
+                        <span>Active tasks will appear here.</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <a 
+            class="report-link" 
+            href="{{ url_for('projects.project_report', project_id=project.id) }}"
+        >
+            View executive report →
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+const infoItems = {{ other_info_items | tojson }};
+let infoIndex = 0;
+
+const infoText = document.getElementById("otherInfoText");
+
+document.getElementById("prevInfo").addEventListener("click", function () {
+    infoIndex = (infoIndex - 1 + infoItems.length) % infoItems.length;
+    infoText.textContent = infoItems[infoIndex];
+});
+
+document.getElementById("nextInfo").addEventListener("click", function () {
+    infoIndex = (infoIndex + 1) % infoItems.length;
+    infoText.textContent = infoItems[infoIndex];
+});
+</script>
+
+{% endblock %}
