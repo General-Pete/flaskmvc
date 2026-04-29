@@ -1,55 +1,89 @@
-{% extends "layout.html" %}
-{% block title %}App Users{% endblock %}
-{% block page %}App Users{% endblock %}
+{% extends "project_tracker/base.html" %}
 
-{{ super() }}
+{% block title %}People{% endblock %}
+{% block body_class %}light-body{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <p>
-            This is table is renderd on the Server. Flask gets the data from the database and uses jinja templates to dyanmically render this page when a request is sent to <a href="/users">/users</a>.
-        </p>
-    </div>
 
-    <div class="row">
-      <form class="col s12" method="POST" action="/users">
-        
-        <div class="row">
-          <div class="input-field col s6">
-            <input placeholder="Username" name="username" type="text" class="validate">
-            <label for="username">Username</label>
-          </div>
-          <div class="input-field col s6">
-            <input placeholder="password" name="password" type="password" class="validate">
-            <label for="password">Password</label>
-          </div>
+<div class="wrapper">
+    <div class="people-header">
+        <div>
+            <h1 class="page-title">People</h1>
+            <div class="sub">
+                Add persons who can be assigned to project tasks.
+            </div>
         </div>
-      
-        <div class="row">
-          <div class="input-field col s12">
-            <button class="btn waves-effect waves-light right purple" type="submit" name="action">Submit</button>
-          </div>
-        </div> 
 
-      </form>
+        <a href="{{ url_for('projects.dashboard') }}" class="btn secondary">
+            Back to Dashboard
+        </a>
     </div>
 
-    <div class="row">
-      <table>
-        <thead>
-          <tr>
-            <th>Id</th><th>Username</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for user in users %}
-            <tr>
-                <td>{{user.id}}</td>
-                <td>{{user.username}}</td>
-            </tr>
-          {% endfor %}
-        <tbody>
-      </table>
+    <div class="people-layout">
+        <div class="card">
+            <h2 class="small-heading">Add Person</h2>
+
+            <form method="POST" action="{{ url_for('user_views.create_person_action') }}">
+                <div class="form-group">
+                    <label for="username">Name / Username</label>
+                    <input 
+                        id="username" 
+                        name="username" 
+                        type="text" 
+                        maxlength="20"
+                        required
+                        placeholder="Michelle"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Temporary Password</label>
+                    <input 
+                        id="password" 
+                        name="password" 
+                        type="password" 
+                        required
+                        placeholder="Set a temporary password"
+                    >
+                </div>
+
+                <button class="btn primary" type="submit">
+                    Add Person
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 class="small-heading">Current People</h2>
+
+            {% if users %}
+                <div class="people-list">
+                    {% for user in users %}
+                        <div class="person-row">
+                            <div>
+                                <div class="person-name">{{ user.username }}</div>
+                                <div class="person-sub">User ID: {{ user.id }}</div>
+                            </div>
+
+                            <form 
+                                method="POST" 
+                                action="{{ url_for('user_views.delete_person_action', user_id=user.id) }}"
+                                onsubmit="return confirm('Delete this person?');"
+                            >
+                                <button class="delete-btn" type="submit">
+                                    ×
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state light-empty">
+                    No people have been added yet.
+                </div>
+            {% endif %}
+        </div>
     </div>
+</div>
 
 {% endblock %}

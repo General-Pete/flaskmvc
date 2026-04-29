@@ -7,6 +7,8 @@ from flask import (
     flash
 )
 
+from flask_jwt_extended import jwt_required
+
 from App.controllers.project_controller import (
     PROJECT_STATUSES,
     PROJECT_PRIORITIES,
@@ -30,6 +32,7 @@ projects_bp = Blueprint(
 
 
 @projects_bp.route("/projects")
+@jwt_required()
 def dashboard():
     context = get_dashboard_context()
 
@@ -40,6 +43,7 @@ def dashboard():
 
 
 @projects_bp.route("/projects/create", methods=["GET", "POST"])
+@jwt_required()
 def create_project():
     if request.method == "POST":
         try:
@@ -61,6 +65,7 @@ def create_project():
 
 
 @projects_bp.route("/projects/<int:project_id>")
+@jwt_required()
 def project_detail(project_id):
     context = get_project_detail_context(project_id)
 
@@ -71,6 +76,7 @@ def project_detail(project_id):
 
 
 @projects_bp.route("/projects/<int:project_id>/tasks")
+@jwt_required()
 def task_management(project_id):
     context = get_task_management_context(project_id)
 
@@ -81,6 +87,7 @@ def task_management(project_id):
 
 
 @projects_bp.route("/projects/<int:project_id>/tasks/create", methods=["POST"])
+@jwt_required()
 def create_task(project_id):
     try:
         create_task_from_form(project_id, request.form)
@@ -95,6 +102,7 @@ def create_task(project_id):
 
 
 @projects_bp.route("/tasks/<int:task_id>/update", methods=["POST"])
+@jwt_required()
 def update_task(task_id):
     task = update_task_from_form(task_id, request.form)
 
@@ -106,6 +114,7 @@ def update_task(task_id):
 
 
 @projects_bp.route("/tasks/<int:task_id>/delete", methods=["POST"])
+@jwt_required()
 def remove_task(task_id):
     project_id = delete_task(task_id)
 
@@ -117,6 +126,7 @@ def remove_task(task_id):
 
 
 @projects_bp.route("/projects/<int:project_id>/report")
+@jwt_required()
 def project_report(project_id):
     context = get_project_report_context(project_id)
 

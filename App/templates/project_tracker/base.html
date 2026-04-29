@@ -20,6 +20,31 @@
 
 <body class="{% block body_class %}light-body{% endblock %}">
 
+    {% block nav %}
+        {% if is_authenticated %}
+            <div class="wrapper global-nav">
+                <div class="global-nav-left">
+                    <a href="{{ url_for('projects.dashboard') }}" class="global-brand">
+                        JBB Project Tracker
+                    </a>
+
+                    <a href="{{ url_for('projects.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('user_views.get_people_page') }}">People</a>
+                </div>
+
+                <div class="global-nav-right">
+                    <span>
+                        Signed in as <strong>{{ current_user.username }}</strong>
+                    </span>
+
+                    <a href="{{ url_for('auth_views.logout_action') }}" class="logout-link">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    {% endblock %}
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="wrapper flash-wrap">

@@ -1,6 +1,7 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for, request, flash
+from flask_jwt_extended import unset_jwt_cookies
 from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -44,9 +45,22 @@ def create_app(overrides={}):
 
     create_db(app)
 
-    @jwt.invalid_token_loader
     @jwt.unauthorized_loader
     def custom_unauthorized_response(error):
-        return render_template("401.html", error=error), 401
+        return redirect(
+            url_for("auth_views.login_page", next=request.path)
+        )
+
+
+    @jwt.invalid_token_loader
+    def custom_invalid_token_response(error):
+        response = redirect(
+            url_for("auth_views.login_page", next=request.path)
+        )
+
+        unset_jwt_cookies(response)
+        flash("Please log in again.", "error")
+
+        return response
 
     return app
