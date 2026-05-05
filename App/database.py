@@ -17,6 +17,7 @@ def create_db(app):
             User,
             Project,
             Task,
+            TaskNote,
             ProjectUpdateItem,
             ProjectRelationship,
             ActivityLog

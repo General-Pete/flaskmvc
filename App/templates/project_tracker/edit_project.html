@@ -1,0 +1,163 @@
+{% extends "project_tracker/base.html" %}
+
+{% block title %}Edit Project{% endblock %}
+{% block body_class %}light-body{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+    <a class="back" href="{{ url_for('projects.project_detail', project_id=project.id) }}">
+        ← Back to Project
+    </a>
+
+    <div class="card">
+        <h1 class="page-title">Edit Project</h1>
+        <div class="sub">{{ project.name }}</div>
+
+        <form method="POST">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label for="name">Project Name</label>
+                    <input 
+                        id="name" 
+                        name="name" 
+                        type="text" 
+                        required
+                        value="{{ project.name }}"
+                    >
+                </div>
+
+                <div class="form-group full">
+                    <label for="description">Project Description</label>
+                    <textarea id="description" name="description">{{ project.description or "" }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="project_type">Project Type</label>
+                    <input 
+                        id="project_type" 
+                        name="project_type" 
+                        type="text" 
+                        value="{{ project.project_type or "" }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        {% for status in statuses %}
+                            <option value="{{ status }}" {% if project.status == status %}selected{% endif %}>
+                                {{ status }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority">
+                        {% for priority in priorities %}
+                            <option value="{{ priority }}" {% if project.priority == priority %}selected{% endif %}>
+                                {{ priority }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget_amount">Budget</label>
+                    <input 
+                        id="budget_amount" 
+                        name="budget_amount" 
+                        type="number" 
+                        step="0.01"
+                        value="{{ project.budget_amount or '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input 
+                        id="start_date" 
+                        name="start_date" 
+                        type="date"
+                        value="{{ project.start_date.isoformat() if project.start_date else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="target_end_date">Target End Date</label>
+                    <input 
+                        id="target_end_date" 
+                        name="target_end_date" 
+                        type="date"
+                        value="{{ project.target_end_date.isoformat() if project.target_end_date else '' }}"
+                    >
+                </div>
+
+                <div class="form-group full">
+                    <label for="current_focus">Current Focus</label>
+                    <input 
+                        id="current_focus" 
+                        name="current_focus" 
+                        type="text"
+                        value="{{ project.current_focus or '' }}"
+                    >
+                </div>
+
+                <div class="form-group full">
+                    <label for="budget_tracker_value">Budget Tracker Value</label>
+                    <input 
+                        id="budget_tracker_value" 
+                        name="budget_tracker_value" 
+                        type="text"
+                        value="{{ project.budget_tracker_value or '' }}"
+                    >
+                </div>
+
+                <div class="form-group full">
+                    <label for="expected_outcome">Expected Outcome</label>
+                    <textarea id="expected_outcome" name="expected_outcome">{{ project.expected_outcome or "" }}</textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label for="other_info">Other Info</label>
+                    <textarea id="other_info" name="other_info">{{ project.other_info or "" }}</textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label for="completed_items">Completed / Established Items</label>
+                    <textarea id="completed_items" name="completed_items">{{ completed_items_text }}</textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label for="in_progress_items">Currently In Progress Items</label>
+                    <textarea id="in_progress_items" name="in_progress_items">{{ in_progress_items_text }}</textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label for="risk_items">Risks / Issues</label>
+                    <textarea id="risk_items" name="risk_items">{{ risk_items_text }}</textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label for="next_step_items">Recommended Next Steps</label>
+                    <textarea id="next_step_items" name="next_step_items">{{ next_step_items_text }}</textarea>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn primary" type="submit">Save Changes</button>
+
+                <a 
+                    href="{{ url_for('projects.project_detail', project_id=project.id) }}" 
+                    class="btn secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -47,6 +47,14 @@ class Task(db.Model):
         backref="assigned_project_tasks"
     )
 
+    notes = db.relationship(
+        "TaskNote",
+        back_populates="task",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="TaskNote.created_at.desc()"
+    )
+
     def is_overdue(self):
         if not self.due_date:
             return False

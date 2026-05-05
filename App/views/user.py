@@ -9,13 +9,15 @@ from flask import (
     url_for
 )
 
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, current_user
 
 from App.controllers import (
     create_user,
     get_all_users,
     get_all_users_json,
-    delete_user
+    update_user,
+    delete_user,
+    USER_ROLES
 )
 
 
@@ -26,26 +28,60 @@ user_views = Blueprint(
 )
 
 
+def require_admin():
+    if not current_user or current_user.role != "Admin":
+        flash("Admins only.", "error")
+        return False
+
+    return True
+
+
 @user_views.route("/people", methods=["GET"])
 @jwt_required()
 def get_people_page():
+    if not require_admin():
+        return redirect(url_for("projects.dashboard"))
+
     users = get_all_users()
 
     return render_template(
         "users.html",
-        users=users
+        users=users,
+        roles=USER_ROLES
     )
 
 
 @user_views.route("/people", methods=["POST"])
 @jwt_required()
 def create_person_action():
+    if not require_admin():
+        return redirect(url_for("projects.dashboard"))
+
     username = request.form.get("username", "").strip()
     password = request.form.get("password", "")
+    role = request.form.get("role", "User")
 
     try:
-        create_user(username, password)
+        create_user(username, password, role)
         flash(f"Person {username} created.", "success")
+
+    except ValueError as ex:
+        flash(str(ex), "error")
+
+    return redirect(url_for("user_views.get_people_page"))
+
+
+@user_views.route("/people/<int:user_id>/role", methods=["POST"])
+@jwt_required()
+def update_person_role_action(user_id):
+    if not require_admin():
+        return redirect(url_for("projects.dashboard"))
+
+    role = request.form.get("role", "User")
+
+    try:
+        update_user(user_id, role=role)
+        flash("Role updated.", "success")
 
     except ValueError as ex:
         flash(str(ex), "error")
@@ -56,6 +92,9 @@ def create_person_action():
 @user_views.route("/people/<int:user_id>/delete", methods=["POST"])
 @jwt_required()
 def delete_person_action(user_id):
+    if not require_admin():
+        return redirect(url_for("projects.dashboard"))
+
     try:
         deleted_user = delete_user(user_id)
 
@@ -73,7 +112,6 @@ def delete_person_action(user_id):
     return redirect(url_for("user_views.get_people_page"))
 
 
-# Backward compatible route if your old navbar still points to /users
 @user_views.route("/users", methods=["GET"])
 @jwt_required()
 def get_user_page():
@@ -96,10 +134,17 @@ def get_users_action():
 @user_views.route("/api/users", methods=["POST"])
 @jwt_required()
 def create_user_endpoint():
+    if not require_admin():
+        return jsonify(message="Admins only."), 403
+
     data = request.json or {}
 
     try:
-        user = create_user(data.get("username"), data.get("password"))
+        user = create_user(
+            data.get("username"),
+            data.get("password"),
+            data.get("role", "User")
+        )
 
         return jsonify({
             "message": f"user {user.username} created with id {user.id}"

@@ -10,7 +10,7 @@
         <div>
             <h1 class="page-title">People</h1>
             <div class="sub">
-                Add persons who can be assigned to project tasks.
+                Add persons who can be assigned to tasks and control their role.
             </div>
         </div>
 
@@ -47,6 +47,17 @@
                     >
                 </div>
 
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role">
+                        {% for role in roles %}
+                            <option value="{{ role }}" {% if role == "User" %}selected{% endif %}>
+                                {{ role }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
                 <button class="btn primary" type="submit">
                     Add Person
                 </button>
@@ -61,19 +72,38 @@
                     {% for user in users %}
                         <div class="person-row">
                             <div>
-                                <div class="person-name">{{ user.username }}</div>
+                                <div class="person-name">
+                                    {{ user.username }}
+                                    <span class="role-pill">{{ user.role }}</span>
+                                </div>
+
                                 <div class="person-sub">User ID: {{ user.id }}</div>
                             </div>
 
-                            <form 
-                                method="POST" 
-                                action="{{ url_for('user_views.delete_person_action', user_id=user.id) }}"
-                                onsubmit="return confirm('Delete this person?');"
-                            >
-                                <button class="delete-btn" type="submit">
-                                    ×
-                                </button>
-                            </form>
+                            <div class="person-actions">
+                                <form 
+                                    method="POST" 
+                                    action="{{ url_for('user_views.update_person_role_action', user_id=user.id) }}"
+                                >
+                                    <select name="role" onchange="this.form.submit()">
+                                        {% for role in roles %}
+                                            <option value="{{ role }}" {% if user.role == role %}selected{% endif %}>
+                                                {{ role }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+
+                                <form 
+                                    method="POST" 
+                                    action="{{ url_for('user_views.delete_person_action', user_id=user.id) }}"
+                                    onsubmit="return confirm('Delete this person?');"
+                                >
+                                    <button class="delete-btn" type="submit">
+                                        ×
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     {% endfor %}
                 </div>

@@ -2,8 +2,19 @@ from App.models import User
 from App.database import db
 
 
-def create_user(username, password):
+USER_ROLES = [
+    "Admin",
+    "User",
+    "Exec"
+]
+
+
+def create_user(username, password, role="User"):
     username = (username or "").strip()
+    role = role or "User"
+
+    if role not in USER_ROLES:
+        role = "User"
 
     if not username:
         raise ValueError("Username is required.")
@@ -16,7 +27,7 @@ def create_user(username, password):
     if existing_user:
         raise ValueError("A user with that username already exists.")
 
-    new_user = User(username=username, password=password)
+    new_user = User(username=username, password=password, role=role)
 
     db.session.add(new_user)
     db.session.commit()
@@ -39,24 +50,28 @@ def get_all_users():
 def get_all_users_json():
     users = User.query.order_by(User.username.asc()).all()
 
-    if not users:
-        return []
-
     return [user.get_json() for user in users]
 
 
-def update_user(id, username):
+def update_user(id, username=None, role=None):
     user = get_user(id)
 
     if not user:
         return None
 
-    username = (username or "").strip()
+    if username is not None:
+        username = username.strip()
 
-    if not username:
-        raise ValueError("Username is required.")
+        if not username:
+            raise ValueError("Username is required.")
 
-    user.username = username
+        user.username = username
+
+    if role is not None:
+        if role not in USER_ROLES:
+            raise ValueError("Invalid role.")
+
+        user.role = role
 
     db.session.add(user)
     db.session.commit()

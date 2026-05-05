@@ -98,6 +98,84 @@
         </div>
     </div>
 
+    <div class="report-card task-report-card">
+        <div class="task-report-header">
+            <div>
+                <h3>Project Tasks</h3>
+                <p>Task list, current status, assignee, and due date.</p>
+            </div>
+
+            <div class="task-report-summary">
+                <div class="task-stat">
+                    <span>Total</span>
+                    <strong>{{ task_stats.total }}</strong>
+                </div>
+
+                <div class="task-stat">
+                    <span>To-Do</span>
+                    <strong>{{ task_stats.todo }}</strong>
+                </div>
+
+                <div class="task-stat">
+                    <span>In Progress</span>
+                    <strong>{{ task_stats.in_progress }}</strong>
+                </div>
+
+                <div class="task-stat">
+                    <span>Completed</span>
+                    <strong>{{ task_stats.completed }}</strong>
+                </div>
+            </div>
+        </div>
+
+        {% if tasks %}
+            <div class="report-task-list">
+                {% for task in tasks %}
+                    <div class="report-task-row">
+                        <div class="report-task-main">
+                            <div class="report-task-title-row">
+                                <strong>{{ task.title }}</strong>
+
+                                <span class="status-pill {% if task.status == 'Completed' %}completed{% elif task.status == 'In Progress' %}inprogress{% else %}todo{% endif %}">
+                                    {{ task.status }}
+                                </span>
+                            </div>
+
+                            <div class="report-task-desc">
+                                {{ task.description or "No task description recorded." }}
+                            </div>
+                        </div>
+
+                        <div class="report-task-meta">
+                            <div>
+                                <span>Assigned To</span>
+                                <strong>
+                                    {{ task.assigned_user.username if task.assigned_user else "Unassigned" }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Due Date</span>
+                                <strong>
+                                    {{ task.due_date.strftime('%d %b %Y') if task.due_date else "No due date" }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Priority</span>
+                                <strong>{{ task.priority }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state light-empty">
+                No tasks have been added to this project.
+            </div>
+        {% endif %}
+    </div>
+
     <div class="next-steps">
         <h3>Recommended Next Steps</h3>
 
@@ -127,7 +205,7 @@
     </div>
 
     <div class="footer">
-        Ministry of Homeland Security | ICT Project Dashboard
+        Ministry of Homeland Security | ICTU Project Dashboard
     </div>
 </div>
 

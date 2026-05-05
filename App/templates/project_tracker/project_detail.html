@@ -25,13 +25,29 @@
                     {{ project.current_focus or "No current focus recorded" }}
                 </div>
             </div>
+            
 
-            <a 
-                href="{{ url_for('projects.task_management', project_id=project.id) }}" 
-                class="manage-btn"
-            >
-                ⚙ Manage Tasks
-            </a>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                {% if can_edit_project %}
+                    <a 
+                        href="{{ url_for('projects.edit_project', project_id=project.id) }}" 
+                        class="btn secondary"
+                    >
+                        Edit Project
+                    </a>
+                {% endif %}
+
+                <a 
+                    href="{{ url_for('projects.task_management', project_id=project.id) }}" 
+                    class="manage-btn"
+                >
+                    {% if can_manage_tasks %}
+                        ⚙ Manage Tasks
+                    {% else %}
+                        My Tasks
+                    {% endif %}
+                </a>
+            </div>
         </div>
 
         <div class="info-grid">

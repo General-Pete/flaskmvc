@@ -29,12 +29,18 @@
                     </a>
 
                     <a href="{{ url_for('projects.dashboard') }}">Dashboard</a>
-                    <a href="{{ url_for('user_views.get_people_page') }}">People</a>
+
+                    {% if current_user.role == "Admin" %}
+                        <a href="{{ url_for('projects.create_project') }}">Add Project</a>
+                        <a href="{{ url_for('user_views.get_people_page') }}">People</a>
+                    {% endif %}
                 </div>
 
                 <div class="global-nav-right">
                     <span>
-                        Signed in as <strong>{{ current_user.username }}</strong>
+                        Signed in as 
+                        <strong>{{ current_user.username }}</strong>
+                        <span class="role-pill">{{ current_user.role }}</span>
                     </span>
 
                     <a href="{{ url_for('auth_views.logout_action') }}" class="logout-link">

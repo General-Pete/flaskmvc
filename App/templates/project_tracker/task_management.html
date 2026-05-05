@@ -13,13 +13,22 @@
     <div class="card">
         <div class="topbar">
             <div>
-                <h1 class="page-title">Task Management</h1>
+                <h1 class="page-title">
+                    {% if can_manage_tasks %}
+                        Task Management
+                    {% else %}
+                        My Tasks
+                    {% endif %}
+                </h1>
+
                 <div class="sub">{{ project.name }}</div>
             </div>
 
-            <button id="openModal" class="add-btn" type="button">
-                + Add Task
-            </button>
+            {% if can_manage_tasks %}
+                <button id="openModal" class="add-btn" type="button">
+                    + Add Task
+                </button>
+            {% endif %}
         </div>
 
         <div class="tabs">
@@ -59,13 +68,15 @@
                                 </div>
                             </div>
 
-                            <form 
-                                method="POST" 
-                                action="{{ url_for('projects.remove_task', task_id=task.id) }}"
-                                onsubmit="return confirm('Delete this task?');"
-                            >
-                                <button class="delete-btn" type="submit">×</button>
-                            </form>
+                            {% if can_manage_tasks %}
+                                <form 
+                                    method="POST" 
+                                    action="{{ url_for('projects.remove_task', task_id=task.id) }}"
+                                    onsubmit="return confirm('Delete this task?');"
+                                >
+                                    <button class="delete-btn" type="submit">×</button>
+                                </form>
+                            {% endif %}
                         </div>
 
                         <div class="task-desc">
@@ -79,37 +90,51 @@
                         >
                             <div>
                                 <label>Assigned To</label>
-                                <select name="assigned_user_id" onchange="this.form.submit()">
-                                    <option value="">Unassigned</option>
 
-                                    {% for user in users %}
-                                        <option 
-                                            value="{{ user.id }}"
-                                            {% if task.assigned_user_id == user.id %}selected{% endif %}
-                                        >
-                                            {{ user.username }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
+                                {% if can_edit_task_fields %}
+                                    <select name="assigned_user_id">
+                                        <option value="">Unassigned</option>
+
+                                        {% for user in users %}
+                                            <option 
+                                                value="{{ user.id }}"
+                                                {% if task.assigned_user_id == user.id %}selected{% endif %}
+                                            >
+                                                {{ user.username }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    <input 
+                                        type="text" 
+                                        value="{{ task.assigned_user.username if task.assigned_user else 'Unassigned' }}"
+                                        readonly
+                                    >
+                                {% endif %}
                             </div>
 
                             <div>
                                 <label>Due Date</label>
-                                <input 
-                                    name="due_date" 
-                                    type="date" 
-                                    value="{{ task.due_date.isoformat() if task.due_date else '' }}"
-                                    onchange="this.form.submit()"
-                                >
+
+                                {% if can_edit_task_fields %}
+                                    <input 
+                                        name="due_date" 
+                                        type="date" 
+                                        value="{{ task.due_date.isoformat() if task.due_date else '' }}"
+                                    >
+                                {% else %}
+                                    <input 
+                                        type="text" 
+                                        value="{{ task.due_date.strftime('%d %b %Y') if task.due_date else 'No due date' }}"
+                                        readonly
+                                    >
+                                {% endif %}
                             </div>
 
                             <div>
                                 <label>Status</label>
-                                <select 
-                                    name="status" 
-                                    class="status-select" 
-                                    onchange="this.form.submit()"
-                                >
+
+                                <select name="status" class="status-select">
                                     {% for status in task_statuses %}
                                         <option 
                                             value="{{ status }}"
@@ -120,18 +145,82 @@
                                     {% endfor %}
                                 </select>
                             </div>
+
+                            {% if can_edit_task_fields %}
+                                <div>
+                                    <label>Priority</label>
+                                    <select name="priority">
+                                        <option {% if task.priority == "Low" %}selected{% endif %}>Low</option>
+                                        <option {% if task.priority == "Medium" %}selected{% endif %}>Medium</option>
+                                        <option {% if task.priority == "High" %}selected{% endif %}>High</option>
+                                        <option {% if task.priority == "Critical" %}selected{% endif %}>Critical</option>
+                                    </select>
+                                </div>
+                            {% endif %}
+
+                            <div>
+                                <label>&nbsp;</label>
+                                <button class="btn primary" type="submit">
+                                    Update Task
+                                </button>
+                            </div>
                         </form>
+
+                        <div class="task-notes-box">
+                            <div class="notes-title">Task Notes / Updates</div>
+
+                            {% if task.notes %}
+                                <div class="notes-list">
+                                    {% for note in task.notes %}
+                                        <div class="note-item">
+                                            <div class="note-meta">
+                                                {{ note.user.username if note.user else "System" }}
+                                                ·
+                                                {{ note.created_at.strftime('%d %b %Y %I:%M %p') }}
+                                            </div>
+
+                                            <div class="note-text">
+                                                {{ note.note }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="note-empty">
+                                    No notes have been added to this task yet.
+                                </div>
+                            {% endif %}
+
+                            {% if can_add_task_notes %}
+                                <form 
+                                    method="POST" 
+                                    action="{{ url_for('projects.create_task_note', task_id=task.id) }}"
+                                    class="note-form"
+                                >
+                                    <textarea 
+                                        name="note" 
+                                        placeholder="Add a status update, note, blocker, or comment..."
+                                        required
+                                    ></textarea>
+
+                                    <button class="btn secondary" type="submit">
+                                        Add Note
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             </div>
         {% else %}
             <div class="empty-state light-empty" style="margin-top:20px;">
-                No tasks have been added for this project yet.
+                No tasks are visible to you for this project.
             </div>
         {% endif %}
     </div>
 </div>
 
+{% if can_manage_tasks %}
 <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
         <h2>Add Task</h2>
@@ -166,7 +255,7 @@
 
                         {% for user in users %}
                             <option value="{{ user.id }}">
-                                {{ user.username }}
+                                {{ user.username }} ({{ user.role }})
                             </option>
                         {% endfor %}
                     </select>
@@ -214,6 +303,7 @@
         </form>
     </div>
 </div>
+{% endif %}
 
 {% endblock %}
 
@@ -261,19 +351,21 @@ document.querySelectorAll(".tab").forEach(tab => {
 
 const modal = document.getElementById("modalBackdrop");
 
-document.getElementById("openModal").addEventListener("click", function () {
-    modal.style.display = "flex";
-});
+if (modal) {
+    document.getElementById("openModal").addEventListener("click", function () {
+        modal.style.display = "flex";
+    });
 
-document.getElementById("closeModal").addEventListener("click", function () {
-    modal.style.display = "none";
-});
-
-modal.addEventListener("click", function (e) {
-    if (e.target === modal) {
+    document.getElementById("closeModal").addEventListener("click", function () {
         modal.style.display = "none";
-    }
-});
+    });
+
+    modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+}
 
 applyFilter("All");
 </script>

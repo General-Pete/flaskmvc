@@ -12,10 +12,12 @@
             <h1>Executive Dashboard</h1>
         </div>
 
-        <a href="{{ url_for('projects.create_project') }}" class="action-btn">
-            <span class="plus">+</span>
-            Add Project
-        </a>
+        {% if current_user.role == "Admin" %}
+            <a href="{{ url_for('projects.create_project') }}" class="action-btn">
+                <span class="plus">+</span>
+                Add Project
+            </a>
+        {% endif %}
     </div>
 
     <div class="panel">
@@ -48,7 +50,11 @@
             <div class="project-list">
                 {% for project in projects %}
                     <a 
-                        href="{{ url_for('projects.project_detail', project_id=project.id) }}" 
+                        href="{% if current_user.role == 'Exec' %}
+                                {{ url_for('projects.project_report', project_id=project.id) }}
+                            {% else %}
+                                {{ url_for('projects.project_detail', project_id=project.id) }}
+                            {% endif %}" 
                         class="project-card"
                     >
                         <div>
