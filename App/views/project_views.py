@@ -51,7 +51,12 @@ def admin_required(fn):
 @projects_bp.route("/projects")
 @jwt_required()
 def dashboard():
-    context = get_dashboard_context(current_user)
+    selected_department_id = request.args.get("department_id", type=int)
+
+    context = get_dashboard_context(
+        current_user,
+        selected_department_id=selected_department_id
+    )
 
     return render_template(
         "project_tracker/dashboard.html",
@@ -67,7 +72,7 @@ def create_project():
         try:
             project = create_project_from_form(
                 request.form,
-                user_id=current_user.id
+                current_user
             )
 
             flash("Project created successfully.", "success")
@@ -76,7 +81,7 @@ def create_project():
                 url_for("projects.project_detail", project_id=project.id)
             )
 
-        except ValueError as ex:
+        except (ValueError, PermissionError) as ex:
             flash(str(ex), "error")
 
     return render_template(
@@ -95,7 +100,7 @@ def edit_project(project_id):
             project = update_project_from_form(
                 project_id,
                 request.form,
-                user_id=current_user.id
+                current_user
             )
 
             flash("Project updated successfully.", "success")
@@ -163,7 +168,7 @@ def create_task(project_id):
         create_task_from_form(
             project_id,
             request.form,
-            user_id=current_user.id
+            user_id=current_user
         )
 
         flash("Task created successfully.", "success")

@@ -14,6 +14,7 @@ def init_db(app):
 def create_db(app):
     with app.app_context():
         from App.models import (
+            Department,
             User,
             Project,
             Task,

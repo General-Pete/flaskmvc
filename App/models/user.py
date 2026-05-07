@@ -1,29 +1,46 @@
 from werkzeug.security import check_password_hash, generate_password_hash
+
 from App.database import db
 
 
 class User(db.Model):
+    __tablename__ = "users"
+
     id = db.Column(db.Integer, primary_key=True)
 
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    password = db.Column(db.String(120), nullable=False)
+    username = db.Column(db.String(50), nullable=False, unique=True, index=True)
+    password = db.Column(db.String(255), nullable=False)
 
-    # Roles:
-    # Admin = full control
-    # User = assigned task user
-    # Exec = dashboard/report only
+    # Admin = department admin/manager/director
+    # User = normal department user
+    # Exec = executive/global viewer
     role = db.Column(db.String(20), nullable=False, default="User")
 
-    def __init__(self, username, password, role="User"):
+    department_id = db.Column(
+        db.Integer,
+        db.ForeignKey("departments.id"),
+        nullable=True,
+        index=True
+    )
+
+    department = db.relationship(
+        "Department",
+        back_populates="users"
+    )
+
+    def __init__(self, username, password, role="User", department_id=None):
         self.username = username
         self.role = role or "User"
+        self.department_id = department_id
         self.set_password(password)
 
     def get_json(self):
         return {
             "id": self.id,
             "username": self.username,
-            "role": self.role
+            "role": self.role,
+            "department_id": self.department_id,
+            "department": self.department.name if self.department else None
         }
 
     def set_password(self, password):

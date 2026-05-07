@@ -17,7 +17,7 @@ class TaskNote(db.Model):
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("user.id"),
+        db.ForeignKey("users.id"),
         nullable=True,
         index=True
     )

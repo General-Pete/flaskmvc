@@ -9,6 +9,18 @@ class Project(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
+    department_id = db.Column(
+        db.Integer,
+        db.ForeignKey("departments.id"),
+        nullable=False,
+        index=True
+    )
+
+    department = db.relationship(
+        "Department",
+        back_populates="projects"
+    )
+
     name = db.Column(db.String(200), nullable=False, index=True)
     description = db.Column(db.Text, nullable=True)
 

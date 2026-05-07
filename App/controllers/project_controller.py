@@ -3,6 +3,7 @@ from decimal import Decimal, InvalidOperation
 
 from App.database import db
 from App.models import (
+    Department,
     Project,
     Task,
     TaskNote,
@@ -11,6 +12,103 @@ from App.models import (
     ActivityLog,
     User
 )
+
+def get_all_departments():
+    return (
+        Department.query
+        .filter_by(is_active=True)
+        .order_by(Department.name.asc())
+        .all()
+    )
+
+
+def is_admin(user):
+    return user is not None and user.role == "Admin"
+
+
+def is_exec(user):
+    return user is not None and user.role == "Exec"
+
+
+def is_normal_user(user):
+    return user is not None and user.role == "User"
+
+
+def can_admin_manage_department(user, department_id):
+    if not user:
+        return False
+
+    if user.role != "Admin":
+        return False
+
+    return user.department_id == department_id
+
+
+def can_view_project(user, project):
+    if not user or not project:
+        return False
+
+    if user.role == "Exec":
+        return True
+
+    if user.role == "Admin":
+        return user.department_id == project.department_id
+
+    # Normal user only sees projects where they have an assigned task.
+    return any(task.assigned_user_id == user.id for task in project.tasks)
+
+
+def can_manage_project(user, project):
+    if not user or not project:
+        return False
+
+    if user.role != "Admin":
+        return False
+
+    return user.department_id == project.department_id
+
+
+def can_update_task(user, task):
+    if not user or not task:
+        return False
+
+    if user.role == "Admin":
+        return user.department_id == task.project.department_id
+
+    if user.role == "User":
+        return task.assigned_user_id == user.id
+
+    return False
+
+
+def get_visible_projects_for_user(user, selected_department_id=None):
+    if not user:
+        return []
+
+    query = Project.query.filter(Project.is_archived == False)
+
+    if user.role == "Exec":
+        if selected_department_id:
+            query = query.filter(Project.department_id == selected_department_id)
+
+        return query.order_by(Project.created_at.desc()).all()
+
+    if user.role == "Admin":
+        return (
+            query
+            .filter(Project.department_id == user.department_id)
+            .order_by(Project.created_at.desc())
+            .all()
+        )
+
+    return (
+        query
+        .join(Task)
+        .filter(Task.assigned_user_id == user.id)
+        .distinct()
+        .order_by(Project.created_at.desc())
+        .all()
+    )
 
 
 PROJECT_STATUSES = [
@@ -155,8 +253,8 @@ def get_visible_projects_for_user(user):
     )
 
 
-def get_dashboard_context(user):
-    projects = get_visible_projects_for_user(user)
+def get_dashboard_context(user, selected_department_id=None):
+    projects = get_visible_projects_for_user(user, selected_department_id)
 
     total_budget = Decimal("0.00")
 
@@ -179,7 +277,9 @@ def get_dashboard_context(user):
 
     return {
         "projects": projects,
-        "stats": stats
+        "stats": stats,
+        "departments": get_all_departments(),
+        "selected_department_id": selected_department_id
     }
 
 
@@ -220,11 +320,17 @@ def replace_update_items(project_id, category, raw_text):
     create_update_items_from_text(project_id, category, raw_text)
 
 
-def create_project_from_form(form, user_id=None):
+def create_project_from_form(form, current_user):
     name = form.get("name", "").strip()
 
     if not name:
         raise ValueError("Project name is required.")
+    
+    if not current_user or current_user.role != "Admin":
+        raise PermissionError("Only department admins can create projects.")
+
+    if not current_user.department_id:
+        raise ValueError("Your account is not assigned to a department.")
 
     project = Project(
         name=name,
@@ -233,6 +339,7 @@ def create_project_from_form(form, user_id=None):
         current_focus=form.get("current_focus", "").strip() or None,
         status=form.get("status", "Not Started"),
         priority=form.get("priority", "Medium"),
+        department_id=current_user.department_id,
         budget_amount=parse_decimal(form.get("budget_amount")),
         budget_tracker_value=form.get("budget_tracker_value", "").strip() or None,
         expected_outcome=form.get("expected_outcome", "").strip() or None,
@@ -254,7 +361,7 @@ def create_project_from_form(form, user_id=None):
         entity_id=project.id,
         action="Created",
         details=f"Project created: {project.name}",
-        user_id=user_id
+        user_id=current_user.id
     )
 
     db.session.commit()
@@ -262,8 +369,11 @@ def create_project_from_form(form, user_id=None):
     return project
 
 
-def update_project_from_form(project_id, form, user_id=None):
+def update_project_from_form(project_id, form, current_user):
     project = get_project_or_404(project_id)
+
+    if not can_manage_project(current_user, project):
+        raise PermissionError("You cannot edit this project.")
 
     name = form.get("name", "").strip()
 
@@ -343,6 +453,7 @@ def get_project_detail_context(project_id, user):
         "todo_tasks": todo_tasks,
         "other_info_items": other_info_items,
         "can_edit_project": is_admin(user),
+        "department": project.department,
         "can_manage_tasks": is_admin(user)
     }
 
@@ -383,26 +494,45 @@ def get_task_management_context(project_id, user):
 
     tasks = query.all()
 
-    users = get_all_users()
+    users = (
+        User.query
+        .filter(User.department_id == project.department_id)
+        .order_by(User.username.asc())
+        .all()
+    )
 
     return {
         "project": project,
         "tasks": tasks,
         "users": users,
         "task_statuses": TASK_STATUSES,
-        "can_manage_tasks": is_admin(user),
-        "can_edit_task_fields": is_admin(user),
+        "can_manage_tasks": can_manage_project(user, project),
+        "can_edit_task_fields": can_manage_project(user, project),
         "can_add_task_notes": user.role in ["Admin", "User"]
     }
 
 
-def create_task_from_form(project_id, form, user_id=None):
+def create_task_from_form(project_id, form, current_user):
     project = get_project_or_404(project_id)
+
+    if not can_manage_project(current_user, project):
+        raise PermissionError("You cannot create tasks for this project.")
 
     title = form.get("title", "").strip()
 
     if not title:
         raise ValueError("Task title is required.")
+
+    assigned_user_id = parse_int(form.get("assigned_user_id"))
+
+    if assigned_user_id:
+        assigned_user = User.query.get(assigned_user_id)
+
+        if not assigned_user:
+            raise ValueError("Assigned user does not exist.")
+
+        if assigned_user.department_id != project.department_id:
+            raise ValueError("Assigned user must belong to the same department as the project.")
 
     task = Task(
         project_id=project.id,
@@ -410,7 +540,7 @@ def create_task_from_form(project_id, form, user_id=None):
         description=form.get("description", "").strip() or None,
         status=form.get("status", "To-Do"),
         priority=form.get("priority", "Medium"),
-        assigned_user_id=parse_int(form.get("assigned_user_id")),
+        assigned_user_id=assigned_user_id,
         due_date=parse_date(form.get("due_date"))
     )
 
@@ -422,7 +552,7 @@ def create_task_from_form(project_id, form, user_id=None):
         entity_id=task.id,
         action="Created",
         details=f"Task created under project {project.name}: {task.title}",
-        user_id=user_id
+        user_id=current_user.id
     )
 
     db.session.commit()

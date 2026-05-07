@@ -1,5 +1,6 @@
 import os
 
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_jwt_extended import unset_jwt_cookies
 from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads

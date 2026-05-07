@@ -1,3 +1,4 @@
+from App.models.department import Department
 from App.models.user import User
 
 from App.models.project import Project

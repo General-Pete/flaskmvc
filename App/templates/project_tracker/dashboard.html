@@ -24,6 +24,25 @@
         <div class="section-kicker">Portfolio Summary</div>
         <h2 class="section-title">All Projects</h2>
 
+        {% if current_user.role == "Exec" %}
+            <form method="GET" action="{{ url_for('projects.dashboard') }}" class="department-filter">
+                <label for="department_id">Department View</label>
+
+                <select id="department_id" name="department_id" onchange="this.form.submit()">
+                    <option value="">All Departments</option>
+
+                    {% for department in departments %}
+                        <option 
+                            value="{{ department.id }}"
+                            {% if selected_department_id == department.id %}selected{% endif %}
+                        >
+                            {{ department.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        {% endif %}
+
         <div class="summary-grid">
             <div class="summary-card">
                 <div class="label">Projects in Scope</div>
@@ -65,6 +84,8 @@
                             </div>
 
                             <div class="project-focus">
+                                {{ project.department.name if project.department else "No department" }}
+                                |
                                 {{ project.current_focus or "No current focus recorded" }}
                             </div>
 

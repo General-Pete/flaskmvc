@@ -23,7 +23,7 @@ class Task(db.Model):
 
     assigned_user_id = db.Column(
         db.Integer,
-        db.ForeignKey("user.id"),
+        db.ForeignKey("users.id"),
         nullable=True
     )
 

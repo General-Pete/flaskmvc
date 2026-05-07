@@ -19,6 +19,7 @@ from App.controllers import (
     delete_user,
     USER_ROLES
 )
+from App.controllers.user import get_all_departments
 
 
 user_views = Blueprint(
@@ -47,7 +48,8 @@ def get_people_page():
     return render_template(
         "users.html",
         users=users,
-        roles=USER_ROLES
+        roles=USER_ROLES,
+        departments=get_all_departments()
     )
 
 
@@ -60,9 +62,11 @@ def create_person_action():
     username = request.form.get("username", "").strip()
     password = request.form.get("password", "")
     role = request.form.get("role", "User")
+    department_id_raw = request.form.get("department_id")
+    department_id = int(department_id_raw) if department_id_raw else None
 
     try:
-        create_user(username, password, role)
+        create_user(username, password, role, department_id)
         flash(f"Person {username} created.", "success")
 
     except ValueError as ex:
