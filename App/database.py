@@ -11,6 +11,10 @@ def init_db(app):
     migrate.init_app(app, db)
 
 
+def get_migrate(app):
+    return migrate
+
+
 def create_db(app):
     with app.app_context():
         from App.models import (

@@ -230,31 +230,55 @@ def can_update_task(user, task):
     return task.assigned_user_id == user.id
 
 
-def get_visible_projects_for_user(user):
+def get_visible_projects_for_user(user, selected_department_id=None):
     if not user:
         return []
 
-    if user.role in ["Admin", "Exec"]:
+    query = Project.query.filter(Project.is_archived == False)
+
+    # Executive sees all departments, or one selected department
+    if user.role == "Exec":
+        if selected_department_id:
+            query = query.filter(Project.department_id == selected_department_id)
+
         return (
-            Project.query
-            .filter_by(is_archived=False)
+            query
             .order_by(Project.created_at.desc())
             .all()
         )
 
+    # Department Admin sees all projects in their own department only
+    if user.role == "Admin":
+        return (
+            query
+            .filter(Project.department_id == user.department_id)
+            .order_by(Project.created_at.desc())
+            .all()
+        )
+
+    # Normal user sees only projects where they have assigned tasks
     return (
-        Project.query
+        query
         .join(Task)
-        .filter(Project.is_archived == False)
         .filter(Task.assigned_user_id == user.id)
         .distinct()
         .order_by(Project.created_at.desc())
         .all()
     )
 
+def get_all_departments():
+    return (
+        Department.query
+        .filter_by(is_active=True)
+        .order_by(Department.name.asc())
+        .all()
+    )
 
 def get_dashboard_context(user, selected_department_id=None):
-    projects = get_visible_projects_for_user(user, selected_department_id)
+    projects = get_visible_projects_for_user(
+        user,
+        selected_department_id
+    )
 
     total_budget = Decimal("0.00")
 

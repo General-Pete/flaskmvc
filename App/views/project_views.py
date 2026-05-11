@@ -109,10 +109,14 @@ def edit_project(project_id):
                 url_for("projects.project_detail", project_id=project.id)
             )
 
-        except ValueError as ex:
+        except (ValueError, PermissionError) as ex:
             flash(str(ex), "error")
 
-    context = get_project_edit_context(project_id)
+    try:
+        context = get_project_edit_context(project_id)
+
+    except PermissionError:
+        abort(403)
 
     return render_template(
         "project_tracker/edit_project.html",
@@ -168,12 +172,12 @@ def create_task(project_id):
         create_task_from_form(
             project_id,
             request.form,
-            user_id=current_user
+            current_user
         )
 
         flash("Task created successfully.", "success")
 
-    except ValueError as ex:
+    except (ValueError, PermissionError) as ex:
         flash(str(ex), "error")
 
     return redirect(
@@ -185,14 +189,19 @@ def create_task(project_id):
 @jwt_required()
 def update_task(task_id):
     try:
-        task = update_task_from_form(task_id, request.form, current_user)
+        task = update_task_from_form(
+            task_id,
+            request.form,
+            current_user
+        )
+
         flash("Task updated.", "success")
 
         return redirect(
             url_for("projects.task_management", project_id=task.project_id)
         )
 
-    except PermissionError as ex:
+    except (ValueError, PermissionError) as ex:
         flash(str(ex), "error")
         return redirect(url_for("projects.dashboard"))
 
@@ -201,7 +210,11 @@ def update_task(task_id):
 @jwt_required()
 def create_task_note(task_id):
     try:
-        note = add_task_note(task_id, request.form, current_user)
+        note = add_task_note(
+            task_id,
+            request.form,
+            current_user
+        )
 
         flash("Task note added.", "success")
 
@@ -209,7 +222,7 @@ def create_task_note(task_id):
             url_for("projects.task_management", project_id=note.task.project_id)
         )
 
-    except (PermissionError, ValueError) as ex:
+    except (ValueError, PermissionError) as ex:
         flash(str(ex), "error")
         return redirect(url_for("projects.dashboard"))
 
@@ -218,20 +231,31 @@ def create_task_note(task_id):
 @jwt_required()
 @admin_required
 def remove_task(task_id):
-    project_id = delete_task(task_id, user_id=current_user.id)
+    try:
+        project_id = delete_task(
+            task_id,
+            user_id=current_user.id
+        )
 
-    flash("Task deleted.", "success")
+        flash("Task deleted.", "success")
 
-    return redirect(
-        url_for("projects.task_management", project_id=project_id)
-    )
+        return redirect(
+            url_for("projects.task_management", project_id=project_id)
+        )
+
+    except (ValueError, PermissionError) as ex:
+        flash(str(ex), "error")
+        return redirect(url_for("projects.dashboard"))
 
 
 @projects_bp.route("/projects/<int:project_id>/report")
 @jwt_required()
 def project_report(project_id):
     try:
-        context = get_project_report_context(project_id, current_user)
+        context = get_project_report_context(
+            project_id,
+            current_user
+        )
 
     except PermissionError:
         abort(403)
