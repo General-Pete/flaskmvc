@@ -61,6 +61,11 @@
                             <div>
                                 <div class="task-name-row">
                                     <div class="task-name">{{ task.title }}</div>
+                                    {% if task.milestone %}
+                                        <div class="task-milestone-label">
+                                            Milestone: {{ task.milestone.title }}
+                                        </div>
+                                    {% endif %}
 
                                     <span class="status-pill {% if task.status == 'Completed' %}completed{% elif task.status == 'In Progress' %}inprogress{% else %}todo{% endif %}">
                                         {{ task.status }}
@@ -108,6 +113,31 @@
                                     <input 
                                         type="text" 
                                         value="{{ task.assigned_user.username if task.assigned_user else 'Unassigned' }}"
+                                        readonly
+                                    >
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label>Milestone</label>
+
+                                {% if can_edit_task_fields %}
+                                    <select name="milestone_id">
+                                        <option value="">No Milestone</option>
+
+                                        {% for milestone in milestones %}
+                                            <option 
+                                                value="{{ milestone.id }}"
+                                                {% if task.milestone_id == milestone.id %}selected{% endif %}
+                                            >
+                                                {{ milestone.title }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    <input 
+                                        type="text"
+                                        value="{{ task.milestone.title if task.milestone else 'No Milestone' }}"
                                         readonly
                                     >
                                 {% endif %}
@@ -256,6 +286,18 @@
                         {% for user in users %}
                             <option value="{{ user.id }}">
                                 {{ user.username }} ({{ user.role }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Milestone</label>
+                    <select name="milestone_id">
+                        <option value="">No Milestone</option>
+
+                        {% for milestone in milestones %}
+                            <option value="{{ milestone.id }}">
+                                {{ milestone.title }}
                             </option>
                         {% endfor %}
                     </select>

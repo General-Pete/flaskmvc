@@ -21,6 +21,7 @@ def create_db(app):
             Department,
             User,
             Project,
+            Milestone,
             Task,
             TaskNote,
             ProjectUpdateItem,

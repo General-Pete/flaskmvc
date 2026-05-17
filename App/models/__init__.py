@@ -2,6 +2,7 @@ from App.models.department import Department
 from App.models.user import User
 
 from App.models.project import Project
+from App.models.milestone import Milestone
 from App.models.task import Task
 from App.models.task_note import TaskNote
 from App.models.project_update_item import ProjectUpdateItem

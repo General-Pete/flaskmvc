@@ -15,6 +15,13 @@ class Task(db.Model):
         index=True
     )
 
+    milestone_id = db.Column(
+        db.Integer,
+        db.ForeignKey("milestones.id"),
+        nullable=True,
+        index=True
+    )
+
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
 
@@ -29,7 +36,12 @@ class Task(db.Model):
 
     due_date = db.Column(db.Date, nullable=True)
 
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow
+    )
+
     updated_at = db.Column(
         db.DateTime,
         nullable=False,
@@ -39,6 +51,11 @@ class Task(db.Model):
 
     project = db.relationship(
         "Project",
+        back_populates="tasks"
+    )
+
+    milestone = db.relationship(
+        "Milestone",
         back_populates="tasks"
     )
 

@@ -69,7 +69,7 @@
             <div class="project-list">
                 {% for project in projects %}
                     <a 
-                        href="{% if current_user.role == 'Exec' %}
+                        href="{% if current_user.role == 'Exec' or current_user.role == 'Admin' %}
                                 {{ url_for('projects.project_report', project_id=project.id) }}
                             {% else %}
                                 {{ url_for('projects.project_detail', project_id=project.id) }}

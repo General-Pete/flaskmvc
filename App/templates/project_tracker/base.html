@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Project Tracker{% endblock %}</title>
 
+    <link 
+        rel="shortcut icon" 
+        href="{{ url_for('static', filename='favicon.ico') }}"
+    >
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link 
@@ -25,7 +30,7 @@
             <div class="wrapper global-nav">
                 <div class="global-nav-left">
                     <a href="{{ url_for('projects.dashboard') }}" class="global-brand">
-                        JBB Project Tracker
+                        AUT Project Tracker
                     </a>
 
                     <a href="{{ url_for('projects.dashboard') }}">Dashboard</a>

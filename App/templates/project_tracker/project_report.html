@@ -8,12 +8,28 @@
 <div class="top-strip"></div>
 
 <div class="report-wrapper">
-    <a 
-        href="{{ url_for('projects.project_detail', project_id=project.id) }}" 
-        class="back"
-    >
-        ← Back to Project
-    </a>
+    {% if current_user.role == "Admin" %}
+        <a 
+            href="{{ url_for('projects.dashboard') }}" 
+            class="back"
+        >
+            ← Back to Dashboard
+        </a>
+    {% elif current_user.role == "Exec" %}
+        <a 
+            href="{{ url_for('projects.dashboard') }}" 
+            class="back"
+        >
+            ← Back to Dashboard
+        </a>
+    {% else %}
+        <a 
+            href="{{ url_for('projects.project_detail', project_id=project.id) }}" 
+            class="back"
+        >
+            ← Back to Project
+        </a>
+    {% endif %}
 
     <div class="report-header">
         <div>
@@ -26,9 +42,20 @@
             </div>
         </div>
 
-        <div class="pills">
-            <div class="pill green">{{ project.status }}</div>
-            <div class="pill red">{{ project.priority }}</div>
+        <div class="report-header-right">
+            <div class="pills">
+                <div class="pill green">{{ project.status }}</div>
+                <div class="pill red">{{ project.priority }}</div>
+            </div>
+
+            {% if current_user.role == "Admin" %}
+                <a 
+                    href="{{ url_for('projects.project_detail', project_id=project.id) }}" 
+                    class="btn secondary admin-project-btn"
+                >
+                    Manage Project
+                </a>
+            {% endif %}
         </div>
     </div>
 
@@ -96,6 +123,77 @@
                 <p>No risks or issues recorded.</p>
             {% endif %}
         </div>
+    </div>
+
+    <div class="report-card milestone-report-card">
+        <div class="milestone-report-header">
+            <div>
+                <h3>Project Milestones</h3>
+                <p>Milestone progress based on completion of assigned tasks.</p>
+            </div>
+        </div>
+
+        {% if milestones %}
+            <div class="report-milestone-list">
+                {% for milestone in milestones %}
+                    <div class="report-milestone-row">
+                        <div class="report-milestone-main">
+                            <div class="report-milestone-title-row">
+                                <strong>{{ milestone.title }}</strong>
+
+                                <span class="milestone-status 
+                                    {% if milestone.is_completed %}
+                                        completed
+                                    {% elif milestone.status_label == 'In Progress' %}
+                                        inprogress
+                                    {% else %}
+                                        todo
+                                    {% endif %}
+                                ">
+                                    {{ milestone.status_label }}
+                                </span>
+                            </div>
+
+                            <div class="report-milestone-desc">
+                                {{ milestone.description or "No milestone description recorded." }}
+                            </div>
+
+                            <div class="milestone-progress-track report-milestone-track">
+                                <div 
+                                    class="milestone-progress-fill"
+                                    style="width: {{ milestone.progress_percent }}%;"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div class="report-milestone-meta">
+                            <div>
+                                <span>Progress</span>
+                                <strong>{{ milestone.progress_percent }}%</strong>
+                            </div>
+
+                            <div>
+                                <span>Tasks</span>
+                                <strong>
+                                    {{ milestone.completed_tasks_count }} / {{ milestone.total_tasks }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Target Date</span>
+                                <strong>
+                                    {{ milestone.target_date.strftime('%d %b %Y') if milestone.target_date else "None" }}
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state light-empty">
+                No milestones have been created for this project.
+            </div>
+        {% endif %}
     </div>
 
     <div class="report-card task-report-card">

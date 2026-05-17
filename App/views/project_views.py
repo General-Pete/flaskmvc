@@ -25,7 +25,11 @@ from App.controllers.project_controller import (
     update_task_from_form,
     delete_task,
     add_task_note,
-    get_project_report_context
+    get_project_report_context,
+    get_milestone_management_context,
+    create_milestone_from_form,
+    update_milestone_from_form,
+    delete_milestone
 )
 
 
@@ -264,3 +268,91 @@ def project_report(project_id):
         "project_tracker/project_report.html",
         **context
     )
+
+
+# =========================================================
+# Milestone Routes
+# =========================================================
+
+@projects_bp.route("/projects/<int:project_id>/milestones")
+@jwt_required()
+def milestone_management(project_id):
+    if current_user.role == "Exec":
+        return redirect(
+            url_for("projects.project_report", project_id=project_id)
+        )
+
+    try:
+        context = get_milestone_management_context(project_id, current_user)
+
+    except PermissionError:
+        abort(403)
+
+    return render_template(
+        "project_tracker/milestone_management.html",
+        **context
+    )
+
+
+@projects_bp.route("/projects/<int:project_id>/milestones/create", methods=["POST"])
+@jwt_required()
+@admin_required
+def create_milestone(project_id):
+    try:
+        create_milestone_from_form(
+            project_id,
+            request.form,
+            current_user
+        )
+
+        flash("Milestone created successfully.", "success")
+
+    except (ValueError, PermissionError) as ex:
+        flash(str(ex), "error")
+
+    return redirect(
+        url_for("projects.milestone_management", project_id=project_id)
+    )
+
+
+@projects_bp.route("/milestones/<int:milestone_id>/update", methods=["POST"])
+@jwt_required()
+@admin_required
+def update_milestone(milestone_id):
+    try:
+        milestone = update_milestone_from_form(
+            milestone_id,
+            request.form,
+            current_user
+        )
+
+        flash("Milestone updated successfully.", "success")
+
+        return redirect(
+            url_for("projects.milestone_management", project_id=milestone.project_id)
+        )
+
+    except (ValueError, PermissionError) as ex:
+        flash(str(ex), "error")
+        return redirect(url_for("projects.dashboard"))
+
+
+@projects_bp.route("/milestones/<int:milestone_id>/delete", methods=["POST"])
+@jwt_required()
+@admin_required
+def remove_milestone(milestone_id):
+    try:
+        project_id = delete_milestone(
+            milestone_id,
+            current_user
+        )
+
+        flash("Milestone deleted. Its tasks were kept and detached.", "success")
+
+        return redirect(
+            url_for("projects.milestone_management", project_id=project_id)
+        )
+
+    except PermissionError as ex:
+        flash(str(ex), "error")
+        return redirect(url_for("projects.dashboard"))

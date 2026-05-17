@@ -1,0 +1,314 @@
+{% extends "project_tracker/base.html" %}
+
+{% block title %}Milestone Management{% endblock %}
+{% block body_class %}light-body{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+    <a 
+        class="back" 
+        href="{{ url_for('projects.project_detail', project_id=project.id) }}"
+    >
+        ← Back to Project
+    </a>
+
+    <div class="card milestone-page-card">
+        <div class="topbar milestone-page-header">
+            <div>
+                <h1 class="page-title">Milestone Management</h1>
+                <div class="sub">{{ project.name }}</div>
+            </div>
+
+            {% if can_manage_milestones %}
+                <button id="openMilestoneModal" class="add-btn" type="button">
+                    + Add Milestone
+                </button>
+            {% endif %}
+        </div>
+
+        {% if milestones %}
+            <div class="milestone-list">
+                {% for milestone in milestones %}
+                    <div class="milestone-card">
+                        <div class="milestone-card-top">
+                            <div>
+                                <div class="milestone-title-row">
+                                    <h2>{{ milestone.title }}</h2>
+
+                                    <span class="milestone-status 
+                                        {% if milestone.is_completed %}
+                                            completed
+                                        {% elif milestone.status_label == 'In Progress' %}
+                                            inprogress
+                                        {% else %}
+                                            todo
+                                        {% endif %}
+                                    ">
+                                        {{ milestone.status_label }}
+                                    </span>
+                                </div>
+
+                                <p class="milestone-description">
+                                    {{ milestone.description or "No description recorded." }}
+                                </p>
+                            </div>
+
+                            {% if can_manage_milestones %}
+                                <form 
+                                    method="POST"
+                                    action="{{ url_for('projects.remove_milestone', milestone_id=milestone.id) }}"
+                                    onsubmit="return confirm('Delete this milestone? Its tasks will be kept, but they will no longer be assigned to the milestone.');"
+                                >
+                                    <button class="delete-btn" type="submit">
+                                        ×
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+
+                        <div class="milestone-summary-grid">
+                            <div class="milestone-summary-box">
+                                <span>Total Tasks</span>
+                                <strong>{{ milestone.total_tasks }}</strong>
+                            </div>
+
+                            <div class="milestone-summary-box">
+                                <span>Completed</span>
+                                <strong>{{ milestone.completed_tasks_count }}</strong>
+                            </div>
+
+                            <div class="milestone-summary-box">
+                                <span>Progress</span>
+                                <strong>{{ milestone.progress_percent }}%</strong>
+                            </div>
+
+                            <div class="milestone-summary-box">
+                                <span>Target Date</span>
+                                <strong>
+                                    {{ milestone.target_date.strftime('%d %b %Y') if milestone.target_date else "None" }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="milestone-progress-track">
+                            <div 
+                                class="milestone-progress-fill"
+                                style="width: {{ milestone.progress_percent }}%;"
+                            ></div>
+                        </div>
+
+                        {% if milestone.tasks %}
+                            <div class="milestone-task-section">
+                                <h3>Tasks in this Milestone</h3>
+
+                                <div class="milestone-task-list">
+                                    {% for task in milestone.tasks %}
+                                        <div class="milestone-task-row">
+                                            <div>
+                                                <div class="milestone-task-title">
+                                                    {{ task.title }}
+                                                </div>
+
+                                                <div class="milestone-task-meta">
+                                                    {{ task.assigned_user.username if task.assigned_user else "Unassigned" }}
+                                                    ·
+                                                    {{ task.due_date.strftime('%d %b %Y') if task.due_date else "No due date" }}
+                                                </div>
+                                            </div>
+
+                                            <span class="status-pill 
+                                                {% if task.status == 'Completed' %}
+                                                    completed
+                                                {% elif task.status == 'In Progress' %}
+                                                    inprogress
+                                                {% else %}
+                                                    todo
+                                                {% endif %}
+                                            ">
+                                                {{ task.status }}
+                                            </span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="milestone-empty-tasks">
+                                No tasks are assigned to this milestone yet.
+                            </div>
+                        {% endif %}
+
+                        {% if can_manage_milestones %}
+                            <details class="milestone-edit-wrap">
+                                <summary>Edit Milestone</summary>
+
+                                <form 
+                                    method="POST" 
+                                    action="{{ url_for('projects.update_milestone', milestone_id=milestone.id) }}"
+                                    class="milestone-edit-form"
+                                >
+                                    <div class="form-grid">
+                                        <div class="form-group full">
+                                            <label>Milestone Title</label>
+                                            <input 
+                                                type="text" 
+                                                name="title" 
+                                                value="{{ milestone.title }}"
+                                                required
+                                            >
+                                        </div>
+
+                                        <div class="form-group full">
+                                            <label>Description</label>
+                                            <textarea name="description">{{ milestone.description or "" }}</textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Target Date</label>
+                                            <input 
+                                                type="date"
+                                                name="target_date"
+                                                value="{{ milestone.target_date.isoformat() if milestone.target_date else '' }}"
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <button class="btn primary" type="submit">
+                                        Save Milestone Changes
+                                    </button>
+                                </form>
+                            </details>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state light-empty milestone-empty-state">
+                No milestones have been created for this project yet.
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="card unassigned-milestone-card">
+        <h2 class="small-heading">Tasks Not Assigned to a Milestone</h2>
+
+        {% if unassigned_tasks %}
+            <div class="milestone-task-list">
+                {% for task in unassigned_tasks %}
+                    <div class="milestone-task-row">
+                        <div>
+                            <div class="milestone-task-title">
+                                {{ task.title }}
+                            </div>
+
+                            <div class="milestone-task-meta">
+                                {{ task.assigned_user.username if task.assigned_user else "Unassigned" }}
+                                ·
+                                {{ task.due_date.strftime('%d %b %Y') if task.due_date else "No due date" }}
+                            </div>
+                        </div>
+
+                        <span class="status-pill 
+                            {% if task.status == 'Completed' %}
+                                completed
+                            {% elif task.status == 'In Progress' %}
+                                inprogress
+                            {% else %}
+                                todo
+                            {% endif %}
+                        ">
+                            {{ task.status }}
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state light-empty">
+                Every task in this project is currently assigned to a milestone.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if can_manage_milestones %}
+<div class="modal-backdrop" id="milestoneModalBackdrop">
+    <div class="modal milestone-modal">
+        <h2>Add Milestone</h2>
+
+        <form 
+            method="POST" 
+            action="{{ url_for('projects.create_milestone', project_id=project.id) }}"
+        >
+            <div class="grid">
+                <div>
+                    <label>Milestone Title</label>
+                    <input 
+                        type="text" 
+                        name="title" 
+                        placeholder="e.g. Procurement Package Completed"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label>Description</label>
+                    <textarea 
+                        name="description"
+                        placeholder="Describe what this milestone represents."
+                    ></textarea>
+                </div>
+
+                <div>
+                    <label>Target Date</label>
+                    <input 
+                        type="date" 
+                        name="target_date"
+                    >
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button 
+                    class="btn secondary" 
+                    type="button" 
+                    id="closeMilestoneModal"
+                >
+                    Cancel
+                </button>
+
+                <button class="btn primary" type="submit">
+                    Create Milestone
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+const milestoneModal = document.getElementById("milestoneModalBackdrop");
+const openMilestoneModal = document.getElementById("openMilestoneModal");
+const closeMilestoneModal = document.getElementById("closeMilestoneModal");
+
+if (milestoneModal && openMilestoneModal && closeMilestoneModal) {
+    openMilestoneModal.addEventListener("click", function () {
+        milestoneModal.style.display = "flex";
+    });
+
+    closeMilestoneModal.addEventListener("click", function () {
+        milestoneModal.style.display = "none";
+    });
+
+    milestoneModal.addEventListener("click", function (e) {
+        if (e.target === milestoneModal) {
+            milestoneModal.style.display = "none";
+        }
+    });
+}
+</script>
+
+{% endblock %}

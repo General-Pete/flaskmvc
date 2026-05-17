@@ -56,6 +56,14 @@ class Project(db.Model):
         lazy=True
     )
 
+    milestones = db.relationship(
+        "Milestone",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="Milestone.created_at.asc()"
+    )
+
     update_items = db.relationship(
         "ProjectUpdateItem",
         back_populates="project",

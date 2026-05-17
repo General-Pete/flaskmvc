@@ -57,6 +57,7 @@ def create_app(overrides={}):
             url_for("auth_views.login_page", next=request.path)
         )
 
+
     @jwt.invalid_token_loader
     def custom_invalid_token_response(error):
         response = redirect(
@@ -65,6 +66,18 @@ def create_app(overrides={}):
 
         unset_jwt_cookies(response)
         flash("Please log in again.", "error")
+
+        return response
+
+
+    @jwt.expired_token_loader
+    def custom_expired_token_response(jwt_header, jwt_payload):
+        response = redirect(
+            url_for("auth_views.login_page", next=request.path)
+        )
+
+        unset_jwt_cookies(response)
+        flash("Your session has expired. Please log in again.", "error")
 
         return response
 

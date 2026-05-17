@@ -5,6 +5,7 @@ from App.database import db
 from App.models import (
     Department,
     Project,
+    Milestone,
     Task,
     TaskNote,
     ProjectUpdateItem,
@@ -427,7 +428,7 @@ def update_project_from_form(project_id, form, current_user):
         entity_id=project.id,
         action="Updated",
         details=f"Project updated: {project.name}",
-        user_id=user_id
+        user_id=current_user.id
     )
 
     db.session.commit()
@@ -525,10 +526,18 @@ def get_task_management_context(project_id, user):
         .all()
     )
 
+    milestones = (
+        Milestone.query
+        .filter_by(project_id=project.id)
+        .order_by(Milestone.created_at.asc())
+        .all()
+    )
+
     return {
         "project": project,
         "tasks": tasks,
         "users": users,
+        "milestones": milestones,
         "task_statuses": TASK_STATUSES,
         "can_manage_tasks": can_manage_project(user, project),
         "can_edit_task_fields": can_manage_project(user, project),
@@ -548,6 +557,7 @@ def create_task_from_form(project_id, form, current_user):
         raise ValueError("Task title is required.")
 
     assigned_user_id = parse_int(form.get("assigned_user_id"))
+    milestone_id = parse_int(form.get("milestone_id"))
 
     if assigned_user_id:
         assigned_user = User.query.get(assigned_user_id)
@@ -557,9 +567,19 @@ def create_task_from_form(project_id, form, current_user):
 
         if assigned_user.department_id != project.department_id:
             raise ValueError("Assigned user must belong to the same department as the project.")
+        
+    if milestone_id:
+        milestone = Milestone.query.get(milestone_id)
+
+        if not milestone:
+            raise ValueError("Selected milestone does not exist.")
+
+        if milestone.project_id != project.id:
+            raise ValueError("Selected milestone does not belong to this project.")
 
     task = Task(
         project_id=project.id,
+        milestone_id=milestone_id,
         title=title,
         description=form.get("description", "").strip() or None,
         status=form.get("status", "To-Do"),
@@ -596,6 +616,21 @@ def update_task_from_form(task_id, form, user):
         task.assigned_user_id = parse_int(form.get("assigned_user_id"))
         task.due_date = parse_date(form.get("due_date"))
         task.priority = form.get("priority", task.priority)
+
+        milestone_id = parse_int(form.get("milestone_id"))
+
+        if milestone_id:
+            milestone = Milestone.query.get(milestone_id)
+
+            if not milestone:
+                raise ValueError("Selected milestone does not exist.")
+
+            if milestone.project_id != task.project_id:
+                raise ValueError("Selected milestone does not belong to this project.")
+
+            task.milestone_id = milestone.id
+        else:
+            task.milestone_id = None
 
     task.status = form.get("status", task.status)
 
@@ -666,8 +701,6 @@ def delete_task(task_id, user_id=None):
 def get_project_report_context(project_id, user=None):
     project = get_project_or_404(project_id)
 
-    # Keep this check if you already added role permissions.
-    # It allows Admin/Exec/all valid assigned users depending on your can_view_project() logic.
     if user is not None:
         if not can_view_project(user, project):
             raise PermissionError("You do not have access to this project.")
@@ -676,6 +709,13 @@ def get_project_report_context(project_id, user=None):
         Task.query
         .filter_by(project_id=project.id)
         .order_by(Task.created_at.asc())
+        .all()
+    )
+
+    milestones = (
+        Milestone.query
+        .filter_by(project_id=project.id)
+        .order_by(Milestone.created_at.asc())
         .all()
     )
 
@@ -703,6 +743,7 @@ def get_project_report_context(project_id, user=None):
 
     return {
         "project": project,
+        "milestones": milestones,
 
         "completed_items": project.get_items_by_category("Completed"),
         "in_progress_items": project.get_items_by_category("In Progress"),
@@ -715,3 +756,138 @@ def get_project_report_context(project_id, user=None):
         "todo_tasks": todo_tasks,
         "task_stats": task_stats
     }
+
+
+# =========================================================
+# Milestone Management
+# =========================================================
+
+def get_milestone_or_404(milestone_id):
+    return Milestone.query.get_or_404(milestone_id)
+
+
+def get_milestone_management_context(project_id, user):
+    project = get_project_or_404(project_id)
+
+    if not can_view_project(user, project):
+        raise PermissionError("You do not have access to this project.")
+
+    # Only department admins can manage milestones.
+    can_manage_milestones = can_manage_project(user, project)
+
+    milestones = (
+        Milestone.query
+        .filter_by(project_id=project.id)
+        .order_by(Milestone.created_at.asc())
+        .all()
+    )
+
+    # Tasks without any milestone, useful for later UI display.
+    unassigned_tasks = (
+        Task.query
+        .filter_by(project_id=project.id, milestone_id=None)
+        .order_by(Task.created_at.desc())
+        .all()
+    )
+
+    return {
+        "project": project,
+        "milestones": milestones,
+        "unassigned_tasks": unassigned_tasks,
+        "can_manage_milestones": can_manage_milestones
+    }
+
+
+def create_milestone_from_form(project_id, form, current_user):
+    project = get_project_or_404(project_id)
+
+    if not can_manage_project(current_user, project):
+        raise PermissionError("You cannot create milestones for this project.")
+
+    title = form.get("title", "").strip()
+    description = form.get("description", "").strip() or None
+    target_date = parse_date(form.get("target_date"))
+
+    if not title:
+        raise ValueError("Milestone title is required.")
+
+    milestone = Milestone(
+        project_id=project.id,
+        title=title,
+        description=description,
+        target_date=target_date
+    )
+
+    db.session.add(milestone)
+    db.session.flush()
+
+    log_activity(
+        entity_type="Milestone",
+        entity_id=milestone.id,
+        action="Created",
+        details=f"Milestone created under project {project.name}: {milestone.title}",
+        user_id=current_user.id
+    )
+
+    db.session.commit()
+
+    return milestone
+
+
+def update_milestone_from_form(milestone_id, form, current_user):
+    milestone = get_milestone_or_404(milestone_id)
+    project = milestone.project
+
+    if not can_manage_project(current_user, project):
+        raise PermissionError("You cannot edit this milestone.")
+
+    title = form.get("title", "").strip()
+    description = form.get("description", "").strip() or None
+    target_date = parse_date(form.get("target_date"))
+
+    if not title:
+        raise ValueError("Milestone title is required.")
+
+    milestone.title = title
+    milestone.description = description
+    milestone.target_date = target_date
+
+    log_activity(
+        entity_type="Milestone",
+        entity_id=milestone.id,
+        action="Updated",
+        details=f"Milestone updated: {milestone.title}",
+        user_id=current_user.id
+    )
+
+    db.session.commit()
+
+    return milestone
+
+
+def delete_milestone(milestone_id, current_user):
+    milestone = get_milestone_or_404(milestone_id)
+    project = milestone.project
+    project_id = project.id
+    milestone_title = milestone.title
+
+    if not can_manage_project(current_user, project):
+        raise PermissionError("You cannot delete this milestone.")
+
+    # Preserve tasks. They are not deleted.
+    # They are simply detached from the milestone.
+    for task in milestone.tasks:
+        task.milestone_id = None
+
+    log_activity(
+        entity_type="Milestone",
+        entity_id=milestone.id,
+        action="Deleted",
+        details=f"Milestone deleted: {milestone_title}. Related tasks were left in place and detached.",
+        user_id=current_user.id
+    )
+
+    db.session.delete(milestone)
+    db.session.commit()
+
+    return project_id

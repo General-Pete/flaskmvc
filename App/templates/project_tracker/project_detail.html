@@ -47,6 +47,14 @@
                         My Tasks
                     {% endif %}
                 </a>
+                {% if can_manage_tasks %}
+                    <a 
+                        href="{{ url_for('projects.milestone_management', project_id=project.id) }}" 
+                        class="manage-btn milestone-manage-btn"
+                    >
+                        ◈ Manage Milestones
+                    </a>
+                {% endif %}
             </div>
         </div>
 
