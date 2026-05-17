@@ -24,6 +24,30 @@
         <div class="section-kicker">Portfolio Summary</div>
         <h2 class="section-title">All Projects</h2>
 
+        <div class="dashboard-project-tools">
+            <div class="dashboard-search-wrap">
+                <label for="projectSearchInput">Search Projects</label>
+                <input
+                    type="text"
+                    id="projectSearchInput"
+                    placeholder="Search by project name..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="dashboard-sort-wrap">
+                <label for="projectSortSelect">Sort by Date Added</label>
+                <select id="projectSortSelect">
+                    <option value="desc">Newest First</option>
+                    <option value="asc">Oldest First</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="dashboard-results-line">
+            Showing <strong id="visibleProjectCount">0</strong> project(s)
+        </div>
+
         {% if current_user.role == "Exec" %}
             <form method="GET" action="{{ url_for('projects.dashboard') }}" class="department-filter">
                 <label for="department_id">Department View</label>
@@ -69,13 +93,15 @@
             <div class="project-list">
                 {% for project in projects %}
                     <a 
-                        href="{% if current_user.role == 'Exec' or current_user.role == 'Admin' %}
-                                {{ url_for('projects.project_report', project_id=project.id) }}
-                            {% else %}
-                                {{ url_for('projects.project_detail', project_id=project.id) }}
-                            {% endif %}" 
-                        class="project-card"
-                    >
+                            href="{% if current_user.role == 'Exec' or current_user.role == 'Admin' %}
+                                    {{ url_for('projects.project_report', project_id=project.id) }}
+                                {% else %}
+                                    {{ url_for('projects.project_detail', project_id=project.id) }}
+                                {% endif %}" 
+                            class="project-card dashboard-project-card"
+                            data-project-name="{{ project.name|lower }}"
+                            data-created-at="{{ project.created_at.isoformat() if project.created_at else '' }}"
+                        >
                         <div>
                             <div class="project-meta-top">
                                 <div class="project-title">{{ project.name }}</div>
@@ -126,6 +152,7 @@
                     </a>
                 {% endfor %}
             </div>
+            <div class="dashboard-pagination" id="dashboardPagination"></div>
         {% else %}
             <div class="empty-state">
                 No projects have been created yet.
@@ -133,5 +160,152 @@
         {% endif %}
     </div>
 </div>
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("projectSearchInput");
+    const sortSelect = document.getElementById("projectSortSelect");
+    const projectList = document.querySelector(".project-list");
+    const pagination = document.getElementById("dashboardPagination");
+    const visibleCount = document.getElementById("visibleProjectCount");
+
+    if (!searchInput || !sortSelect || !projectList || !pagination) {
+        return;
+    }
+
+    const pageSize = 10;
+    let currentPage = 1;
+
+    const allCards = Array.from(
+        projectList.querySelectorAll(".dashboard-project-card")
+    );
+
+    function getFilteredAndSortedCards() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const sortOrder = sortSelect.value;
+
+        let filteredCards = allCards.filter(function (card) {
+            const projectName = card.dataset.projectName || "";
+            return projectName.includes(searchTerm);
+        });
+
+        filteredCards.sort(function (a, b) {
+            const dateA = new Date(a.dataset.createdAt || 0).getTime();
+            const dateB = new Date(b.dataset.createdAt || 0).getTime();
+
+            if (sortOrder === "asc") {
+                return dateA - dateB;
+            }
+
+            return dateB - dateA;
+        });
+
+        return filteredCards;
+    }
+
+    function renderProjects() {
+        const filteredCards = getFilteredAndSortedCards();
+
+        if (visibleCount) {
+            visibleCount.textContent = filteredCards.length;
+        }
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(filteredCards.length / pageSize)
+        );
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        allCards.forEach(function (card) {
+            card.style.display = "none";
+        });
+
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+
+        filteredCards
+            .slice(startIndex, endIndex)
+            .forEach(function (card) {
+                card.style.display = "";
+                projectList.appendChild(card);
+            });
+
+        renderPagination(totalPages, filteredCards.length);
+    }
+
+    function renderPagination(totalPages, totalItems) {
+        pagination.innerHTML = "";
+
+        if (totalItems <= pageSize) {
+            return;
+        }
+
+        const previousButton = document.createElement("button");
+        previousButton.type = "button";
+        previousButton.className = "pagination-btn";
+        previousButton.textContent = "← Previous";
+        previousButton.disabled = currentPage === 1;
+
+        previousButton.addEventListener("click", function () {
+            currentPage--;
+            renderProjects();
+        });
+
+        pagination.appendChild(previousButton);
+
+        for (let page = 1; page <= totalPages; page++) {
+            const pageButton = document.createElement("button");
+            pageButton.type = "button";
+            pageButton.className = "pagination-btn page-number-btn";
+            pageButton.textContent = page;
+
+            if (page === currentPage) {
+                pageButton.classList.add("active");
+            }
+
+            pageButton.addEventListener("click", function () {
+                currentPage = page;
+                renderProjects();
+            });
+
+            pagination.appendChild(pageButton);
+        }
+
+        const nextButton = document.createElement("button");
+        nextButton.type = "button";
+        nextButton.className = "pagination-btn";
+        nextButton.textContent = "Next →";
+        nextButton.disabled = currentPage === totalPages;
+
+        nextButton.addEventListener("click", function () {
+            currentPage++;
+            renderProjects();
+        });
+
+        pagination.appendChild(nextButton);
+    }
+
+    searchInput.addEventListener("input", function () {
+        currentPage = 1;
+        renderProjects();
+    });
+
+    sortSelect.addEventListener("change", function () {
+        currentPage = 1;
+        renderProjects();
+    });
+
+    renderProjects();
+});
+</script>
+{% endblock %}
 
 {% endblock %}

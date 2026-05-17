@@ -1908,3 +1908,121 @@ textarea {
         animation: none;
     }
 }
+
+
+/* =========================================================
+   Dashboard Project Search / Sort / Pagination
+   ========================================================= */
+
+.dashboard-project-tools {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) 260px;
+    gap: 16px;
+    margin: 22px 0 10px;
+    align-items: end;
+}
+
+.dashboard-search-wrap,
+.dashboard-sort-wrap {
+    display: grid;
+    gap: 8px;
+}
+
+.dashboard-search-wrap label,
+.dashboard-sort-wrap label {
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.dashboard-search-wrap input,
+.dashboard-sort-wrap select {
+    width: 100%;
+    min-height: 54px;
+    padding: 0 18px;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .12);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    outline: none;
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.dashboard-search-wrap input::placeholder {
+    color: rgba(255, 255, 255, .70);
+}
+
+.dashboard-search-wrap input:focus,
+.dashboard-sort-wrap select:focus {
+    border-color: rgba(255, 255, 255, .42);
+    background: rgba(255, 255, 255, .18);
+}
+
+.dashboard-sort-wrap select option {
+    color: #0f172a;
+}
+
+.dashboard-results-line {
+    margin-bottom: 18px;
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.dashboard-results-line strong {
+    color: #ffffff;
+}
+
+.dashboard-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.pagination-btn {
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .10);
+    color: #ffffff;
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, .18);
+    border-color: rgba(255, 255, 255, .28);
+}
+
+.pagination-btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.page-number-btn {
+    min-width: 44px;
+    padding: 0 12px;
+}
+
+.page-number-btn.active {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #ffffff;
+}
+
+@media (max-width: 760px) {
+    .dashboard-project-tools {
+        grid-template-columns: 1fr;
+    }
+}
