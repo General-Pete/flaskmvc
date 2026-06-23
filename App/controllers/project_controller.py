@@ -34,13 +34,27 @@ def is_exec(user):
 def is_normal_user(user):
     return user is not None and user.role == "User"
 
+def is_head(user):
+    return user is not None and user.role =="Head"
 
-def can_admin_manage_department(user, department_id):
+
+def can_head_manage_department(user, department_id):
     if not user:
         return False
 
     if user.role != "Admin":
         return False
+    
+
+    return user.department_id == department_id
+
+def can_admin_manage_department(user, department_id):
+    if not user:
+        return False
+
+    if user.role != "Head":
+        return False
+    
 
     return user.department_id == department_id
 
@@ -54,9 +68,14 @@ def can_view_project(user, project):
 
     if user.role == "Admin":
         return user.department_id == project.department_id
+    
+    if user.role == "Head":
+        return user.department_id == project.department_id
 
     # Normal user only sees projects where they have an assigned task.
     return any(task.assigned_user_id == user.id for task in project.tasks)
+
+ 
 
 
 def can_manage_project(user, project):
@@ -64,6 +83,9 @@ def can_manage_project(user, project):
         return False
 
     if user.role != "Admin":
+        return False
+    
+    if user.role != "Head":
         return False
 
     return user.department_id == project.department_id
@@ -74,6 +96,9 @@ def can_update_task(user, task):
         return False
 
     if user.role == "Admin":
+        return user.department_id == task.project.department_id
+    
+    if user.role == "Head":
         return user.department_id == task.project.department_id
 
     if user.role == "User":
@@ -102,6 +127,7 @@ def get_visible_projects_for_user(user, selected_department_id=None):
             .all()
         )
 
+    
     return (
         query
         .join(Task)

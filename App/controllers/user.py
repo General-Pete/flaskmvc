@@ -5,7 +5,8 @@ from App.database import db
 USER_ROLES = [
     "Admin",
     "User",
-    "Exec"
+    "Exec",
+    "Head"
 ]
 
 
