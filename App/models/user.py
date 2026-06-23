@@ -14,6 +14,7 @@ class User(db.Model):
     # Admin = department admin/manager/director
     # User = normal department user
     # Exec = executive/global viewer
+    # Head = Head of Department 
     role = db.Column(db.String(20), nullable=False, default="User")
 
     department_id = db.Column(
@@ -26,6 +27,13 @@ class User(db.Model):
     department = db.relationship(
         "Department",
         back_populates="users"
+    )
+
+    #Temp Password
+    must_change_password = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False,
     )
 
     def __init__(self, username, password, role="User", department_id=None):

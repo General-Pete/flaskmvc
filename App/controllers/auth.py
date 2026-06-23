@@ -11,10 +11,32 @@ from App.models import User
 def login(username, password):
     user = User.query.filter_by(username=username).first()
 
-    if user and user.check_password(password):
-        return create_access_token(identity=str(user.id))
+    if not user: 
+        return None;
 
-    return None
+    if not user.check_password(password):
+        return None
+    
+    #Blocks Access if Temp Password is still active.
+    if user.must_change_password:
+        return{
+            "access_token":create_access_token(identity=str(user.id)),
+            "must_change_password": True
+
+        } 
+    
+    return{
+            "access_token": create_access_token(identity=str(user.id)),
+            "must_change_password":False
+
+        }
+
+    #if user.must_change_password:
+
+        #if user and user.check_password(password):
+           # return create_access_token(identity=str(user.id))
+
+    #return None
 
 
 def setup_jwt(app):

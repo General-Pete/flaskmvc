@@ -55,7 +55,7 @@ def create_user(username, password, role="User", department_id=None):
         raise ValueError("Password is required.")
 
     if role != "Exec" and not department_id:
-        raise ValueError("Department is required for Admin and User accounts.")
+        raise ValueError("Department is required for Admin, Head and User accounts.")
 
     if role == "Exec":
         department_id = None
@@ -71,6 +71,8 @@ def create_user(username, password, role="User", department_id=None):
         role=role,
         department_id=department_id
     )
+
+    new_user.must_change_password = True
 
     db.session.add(new_user)
     db.session.commit()
