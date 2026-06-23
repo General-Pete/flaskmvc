@@ -60,6 +60,10 @@ class User(db.Model):
     @property
     def is_normal_user(self):
         return self.role == "User"
+    
+    @property
+    def is_head(self):
+        return self.role == "Head"
 
     def __repr__(self):
         return f"<User {self.username} ({self.role})>"
