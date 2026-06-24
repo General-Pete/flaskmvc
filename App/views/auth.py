@@ -16,6 +16,7 @@ from flask_jwt_extended import (
 )
 
 from App.controllers import login
+from App.database import db
 
 
 auth_views = Blueprint(
@@ -34,7 +35,96 @@ def login_page():
         next_url=next_url
     )
 
+@auth_views.route("/login", methods=["POST"])
+def login_action():
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "")
+    next_url = request.form.get("next") or url_for("projects.dashboard")
 
+    login_result = login(username, password)
+
+    if not login_result:
+        flash("Bad username or password.", "error")
+        return redirect(url_for("auth_views.login_page", next=next_url))
+
+    # Force password change for first login
+    if login_result["must_change_password"]:
+        response = redirect(url_for("auth_views.change_password"))
+
+        set_access_cookies(
+            response,
+            login_result["access_token"]
+        )
+
+        flash("You must change your password before continuing.", "error")
+        return response
+
+    # Normal login
+    response = redirect(next_url)
+
+    set_access_cookies(
+        response,
+        login_result["access_token"]
+    )
+
+    flash("Login successful.", "success")
+
+    return response
+
+"""
+@auth_views.route("/login", methods=["POST"])
+def login_action():
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "")
+    next_url = request.form.get("next") or url_for("projects.dashboard")
+
+    login_result = login(username, password)
+
+    if not login_result:
+        flash("Bad username or password.", "error")
+        return redirect(url_for("auth_views.login_page", next=next_url))
+    
+    if login_result["must_change_password"]:
+        response = redirect(url_for("auth_views.change_password"))
+
+    set_access_cookies(
+        response,
+        login_result["access_token"]
+    )
+
+    flash("You must change your password before continuing.", "error")
+
+    return 
+
+    response = redirect(next_url)
+
+        set_access_cookies(
+        response,
+        login_result["access_token"]
+    )
+
+    flash("Login successful.", "success")
+
+    return response """"""
+"""
+@auth_views.route("/change-password", methods=["GET", "POST"])
+@jwt_required()
+def change_password():
+    if request.method == "POST":
+        new_password = request.form.get("password")
+
+        user = current_user
+        user.set_password(new_password)
+
+        user.must_change_password = False
+        db.session.commit()
+
+        flash("Password updated successfully.", "success")
+        return redirect(url_for("projects.dashboard"))
+
+    return render_template("auth/change_password.html")
+
+"""
 @auth_views.route("/login", methods=["POST"])
 def login_action():
     username = request.form.get("username", "").strip()
@@ -54,6 +144,7 @@ def login_action():
 
     return response
 
+"""
 
 @auth_views.route("/logout", methods=["GET"])
 def logout_action():
@@ -68,6 +159,31 @@ def logout_action():
 def user_login_api():
     data = request.json or {}
 
+    login_result = login(
+        data.get("username"),
+        data.get("password")
+    )
+
+    if not login_result:
+        return jsonify(message="Bad username or password."), 401
+
+    response = jsonify(
+        access_token=login_result["access_token"],
+        must_change_password=login_result["must_change_password"]
+    )
+
+    set_access_cookies(
+        response,
+        login_result["access_token"]
+    )
+
+    return response
+
+"""
+@auth_views.route("/api/login", methods=["POST"])
+def user_login_api():
+    data = request.json or {}
+
     token = login(data.get("username"), data.get("password"))
 
     if not token:
@@ -77,8 +193,7 @@ def user_login_api():
     set_access_cookies(response, token)
 
     return response
-
-
+"""
 @auth_views.route("/api/identify", methods=["GET"])
 @jwt_required()
 def identify_user():

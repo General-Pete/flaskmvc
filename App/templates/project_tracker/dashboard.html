@@ -12,7 +12,7 @@
             <h1>Executive Dashboard</h1>
         </div>
 
-        {% if current_user.role == "Admin" %}
+        {% if current_user.role == ["Admin","Head"] %}
             <a href="{{ url_for('projects.create_project') }}" class="action-btn">
                 <span class="plus">+</span>
                 Add Project
@@ -93,7 +93,7 @@
             <div class="project-list">
                 {% for project in projects %}
                     <a 
-                            href="{% if current_user.role == 'Exec' or current_user.role == 'Admin' %}
+                            href="{% if current_user.role == 'Exec' or current_user.role == 'Admin' or current_user.role == 'Head' %}
                                     {{ url_for('projects.project_report', project_id=project.id) }}
                                 {% else %}
                                     {{ url_for('projects.project_detail', project_id=project.id) }}

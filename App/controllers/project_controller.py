@@ -42,21 +42,12 @@ def can_head_manage_department(user, department_id):
     if not user:
         return False
 
-    if user.role != "Admin":
+    if user.role != ["Admin", "Head"]:
         return False
     
 
     return user.department_id == department_id
 
-def can_admin_manage_department(user, department_id):
-    if not user:
-        return False
-
-    if user.role != "Head":
-        return False
-    
-
-    return user.department_id == department_id
 
 
 def can_view_project(user, project):
@@ -66,10 +57,7 @@ def can_view_project(user, project):
     if user.role == "Exec":
         return True
 
-    if user.role == "Admin":
-        return user.department_id == project.department_id
-    
-    if user.role == "Head":
+    if user.role == ["Admin","Head"]:
         return user.department_id == project.department_id
 
     # Normal user only sees projects where they have an assigned task.
@@ -82,11 +70,9 @@ def can_manage_project(user, project):
     if not user or not project:
         return False
 
-    if user.role != "Admin":
+    if user.role != [ "Admin", "Head"]:
         return False
     
-    if user.role != "Head":
-        return False
 
     return user.department_id == project.department_id
 
@@ -95,11 +81,9 @@ def can_update_task(user, task):
     if not user or not task:
         return False
 
-    if user.role == "Admin":
+    if user.role == ["Admin","Head"]:
         return user.department_id == task.project.department_id
-    
-    if user.role == "Head":
-        return user.department_id == task.project.department_id
+
 
     if user.role == "User":
         return task.assigned_user_id == user.id
@@ -119,7 +103,7 @@ def get_visible_projects_for_user(user, selected_department_id=None):
 
         return query.order_by(Project.created_at.desc()).all()
 
-    if user.role == "Admin":
+    if user.role == ["Admin","Head"]:
         return (
             query
             .filter(Project.department_id == user.department_id)
@@ -232,6 +216,9 @@ def is_exec(user):
 def is_normal_user(user):
     return user is not None and user.role == "User"
 
+def is_head(user):
+    return user is not None and user.role == "Head"
+
 
 def get_all_users():
     return User.query.order_by(User.username.asc()).all()
@@ -241,7 +228,7 @@ def can_view_project(user, project):
     if not user or not project:
         return False
 
-    if user.role in ["Admin", "Exec"]:
+    if user.role in ["Admin", "Head","Exec"]:
         return True
 
     return any(task.assigned_user_id == user.id for task in project.tasks)
@@ -251,9 +238,11 @@ def can_update_task(user, task):
     if not user or not task:
         return False
 
-    if user.role == "Admin":
+    if user.role == ["Admin","Head"]:
         return True
 
+   
+    
     return task.assigned_user_id == user.id
 
 
@@ -274,14 +263,16 @@ def get_visible_projects_for_user(user, selected_department_id=None):
             .all()
         )
 
-    # Department Admin sees all projects in their own department only
-    if user.role == "Admin":
+    # Department Admin/Head sees all projects in their own department only
+    if user.role == ["Admin","Head"]:
         return (
             query
             .filter(Project.department_id == user.department_id)
             .order_by(Project.created_at.desc())
             .all()
         )
+
+
 
     # Normal user sees only projects where they have assigned tasks
     return (
@@ -377,8 +368,8 @@ def create_project_from_form(form, current_user):
     if not name:
         raise ValueError("Project name is required.")
     
-    if not current_user or current_user.role != "Admin":
-        raise PermissionError("Only department admins can create projects.")
+    if not current_user or current_user.role != ["Admin","Head"]:
+        raise PermissionError("Only department admins and heads can create projects.")
 
     if not current_user.department_id:
         raise ValueError("Your account is not assigned to a department.")
@@ -638,7 +629,7 @@ def update_task_from_form(task_id, form, user):
 
     old_status = task.status
 
-    if user.role == "Admin":
+    if user.role == ["Admin", "Head"]:
         task.assigned_user_id = parse_int(form.get("assigned_user_id"))
         task.due_date = parse_date(form.get("due_date"))
         task.priority = form.get("priority", task.priority)

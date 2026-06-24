@@ -29,9 +29,9 @@ user_views = Blueprint(
 )
 
 
-def require_admin():
-    if not current_user or current_user.role != "Admin":
-        flash("Admins only.", "error")
+def require_management():
+    if not current_user or current_user.role not in ["Admin","Head"]:
+        flash("Admins and Heads only.", "error")
         return False
 
     return True
@@ -40,7 +40,7 @@ def require_admin():
 @user_views.route("/people", methods=["GET"])
 @jwt_required()
 def get_people_page():
-    if not require_admin():
+    if not require_management():
         return redirect(url_for("projects.dashboard"))
 
     users = get_all_users()
@@ -56,7 +56,7 @@ def get_people_page():
 @user_views.route("/people", methods=["POST"])
 @jwt_required()
 def create_person_action():
-    if not require_admin():
+    if not require_management():
         return redirect(url_for("projects.dashboard"))
 
     username = request.form.get("username", "").strip()
@@ -78,7 +78,7 @@ def create_person_action():
 @user_views.route("/people/<int:user_id>/role", methods=["POST"])
 @jwt_required()
 def update_person_role_action(user_id):
-    if not require_admin():
+    if not require_management():
         return redirect(url_for("projects.dashboard"))
 
     role = request.form.get("role", "User")
@@ -96,7 +96,7 @@ def update_person_role_action(user_id):
 @user_views.route("/people/<int:user_id>/delete", methods=["POST"])
 @jwt_required()
 def delete_person_action(user_id):
-    if not require_admin():
+    if not require_management():
         return redirect(url_for("projects.dashboard"))
 
     try:
@@ -138,7 +138,7 @@ def get_users_action():
 @user_views.route("/api/users", methods=["POST"])
 @jwt_required()
 def create_user_endpoint():
-    if not require_admin():
+    if not require_management():
         return jsonify(message="Admins only."), 403
 
     data = request.json or {}

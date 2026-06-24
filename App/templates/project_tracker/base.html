@@ -35,9 +35,10 @@
 
                     <a href="{{ url_for('projects.dashboard') }}">Dashboard</a>
 
-                    {% if current_user.role == "Admin" %}
+                    {% if current_user.role == "Admin" or current_user.role == "Head" %}
                         <a href="{{ url_for('projects.create_project') }}">Add Project</a>
                         <a href="{{ url_for('user_views.get_people_page') }}">People</a>
+        
                     {% endif %}
                 </div>
 

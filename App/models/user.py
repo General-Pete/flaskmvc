@@ -36,11 +36,19 @@ class User(db.Model):
         default=False,
     )
 
-    def __init__(self, username, password, role="User", department_id=None):
+    """def __init__(self, username, password, role="User", department_id=None):
         self.username = username
         self.role = role or "User"
         self.department_id = department_id
+        self.set_password(password)"""
+    
+    def __init__(self, username, password, role="User", department_id=None, must_change_password=False):
+        self.username = username
+        self.role = role or "User"
+        self.department_id = department_id
+
         self.set_password(password)
+        self.must_change_password = must_change_password
 
     def get_json(self):
         return {

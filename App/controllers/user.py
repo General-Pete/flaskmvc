@@ -69,10 +69,9 @@ def create_user(username, password, role="User", department_id=None):
         username=username,
         password=password,
         role=role,
-        department_id=department_id
+        department_id=department_id,
+        must_change_password=True
     )
-
-    new_user.must_change_password = True
 
     db.session.add(new_user)
     db.session.commit()

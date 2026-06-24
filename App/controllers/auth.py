@@ -17,19 +17,21 @@ def login(username, password):
     if not user.check_password(password):
         return None
     
+    #token = create_access_token(identity=str(user.id))
+    
     #Blocks Access if Temp Password is still active.
-    if user.must_change_password:
-        return{
+    #if user.must_change_password:
+    return{
             "access_token":create_access_token(identity=str(user.id)),
-            "must_change_password": True
+            "must_change_password": user.must_change_password
 
         } 
     
-    return{
-            "access_token": create_access_token(identity=str(user.id)),
-            "must_change_password":False
+    #return{
+           # "access_token": create_access_token(identity=str(user.id)),
+          #  "must_change_password":False
 
-        }
+        #}
 
     #if user.must_change_password:
 

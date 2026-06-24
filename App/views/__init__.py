@@ -5,6 +5,7 @@ from .index import index_views
 from .auth import auth_views
 from .admin import setup_admin
 from App.views.project_views import projects_bp
+from .departments import department_views
 
 
 views = [user_views, index_views, auth_views, projects_bp] 

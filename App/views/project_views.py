@@ -40,12 +40,24 @@ projects_bp = Blueprint(
 )
 
 
-def admin_required(fn):
+def management_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not current_user or current_user.role != "Admin":
-            flash("Admins only.", "error")
+        if not current_user or current_user.role not in ["Admin","Head"]:
+            flash("Admins and Heads only.", "error")
             return redirect(url_for("projects.dashboard"))
+
+        return fn(*args, **kwargs)
+
+    return wrapper
+
+
+def password_change_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if current_user and current_user.must_change_password:
+            flash("You must change your password before continuing.", "error")
+            return redirect(url_for("auth_views.change_password"))
 
         return fn(*args, **kwargs)
 
@@ -70,7 +82,7 @@ def dashboard():
 
 @projects_bp.route("/projects/create", methods=["GET", "POST"])
 @jwt_required()
-@admin_required
+@management_required
 def create_project():
     if request.method == "POST":
         try:
@@ -97,7 +109,8 @@ def create_project():
 
 @projects_bp.route("/projects/<int:project_id>/edit", methods=["GET", "POST"])
 @jwt_required()
-@admin_required
+@management_required
+
 def edit_project(project_id):
     if request.method == "POST":
         try:
@@ -130,6 +143,7 @@ def edit_project(project_id):
 
 @projects_bp.route("/projects/<int:project_id>")
 @jwt_required()
+@password_change_required
 def project_detail(project_id):
     if current_user.role == "Exec":
         return redirect(
@@ -170,7 +184,8 @@ def task_management(project_id):
 
 @projects_bp.route("/projects/<int:project_id>/tasks/create", methods=["POST"])
 @jwt_required()
-@admin_required
+@password_change_required
+@management_required
 def create_task(project_id):
     try:
         create_task_from_form(
@@ -191,6 +206,7 @@ def create_task(project_id):
 
 @projects_bp.route("/tasks/<int:task_id>/update", methods=["POST"])
 @jwt_required()
+@password_change_required
 def update_task(task_id):
     try:
         task = update_task_from_form(
@@ -212,6 +228,7 @@ def update_task(task_id):
 
 @projects_bp.route("/tasks/<int:task_id>/notes/create", methods=["POST"])
 @jwt_required()
+@password_change_required
 def create_task_note(task_id):
     try:
         note = add_task_note(
@@ -233,7 +250,8 @@ def create_task_note(task_id):
 
 @projects_bp.route("/tasks/<int:task_id>/delete", methods=["POST"])
 @jwt_required()
-@admin_required
+@password_change_required
+@management_required
 def remove_task(task_id):
     try:
         project_id = delete_task(
@@ -254,6 +272,7 @@ def remove_task(task_id):
 
 @projects_bp.route("/projects/<int:project_id>/report")
 @jwt_required()
+@password_change_required
 def project_report(project_id):
     try:
         context = get_project_report_context(
@@ -276,6 +295,7 @@ def project_report(project_id):
 
 @projects_bp.route("/projects/<int:project_id>/milestones")
 @jwt_required()
+@password_change_required
 def milestone_management(project_id):
     if current_user.role == "Exec":
         return redirect(
@@ -296,7 +316,7 @@ def milestone_management(project_id):
 
 @projects_bp.route("/projects/<int:project_id>/milestones/create", methods=["POST"])
 @jwt_required()
-@admin_required
+@management_required
 def create_milestone(project_id):
     try:
         create_milestone_from_form(
@@ -317,7 +337,7 @@ def create_milestone(project_id):
 
 @projects_bp.route("/milestones/<int:milestone_id>/update", methods=["POST"])
 @jwt_required()
-@admin_required
+@management_required
 def update_milestone(milestone_id):
     try:
         milestone = update_milestone_from_form(
@@ -339,7 +359,7 @@ def update_milestone(milestone_id):
 
 @projects_bp.route("/milestones/<int:milestone_id>/delete", methods=["POST"])
 @jwt_required()
-@admin_required
+@management_required
 def remove_milestone(milestone_id):
     try:
         project_id = delete_milestone(
