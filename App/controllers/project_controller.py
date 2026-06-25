@@ -42,7 +42,7 @@ def can_head_manage_department(user, department_id):
     if not user:
         return False
 
-    if user.role != ["Admin", "Head"]:
+    if user.role not in ["Admin", "Head"]:
         return False
     
 
@@ -57,7 +57,7 @@ def can_view_project(user, project):
     if user.role == "Exec":
         return True
 
-    if user.role == ["Admin","Head"]:
+    if user.role in ["Admin","Head"]:
         return user.department_id == project.department_id
 
     # Normal user only sees projects where they have an assigned task.
@@ -70,7 +70,7 @@ def can_manage_project(user, project):
     if not user or not project:
         return False
 
-    if user.role != [ "Admin", "Head"]:
+    if user.role not in [ "Admin", "Head"]:
         return False
     
 
@@ -81,7 +81,7 @@ def can_update_task(user, task):
     if not user or not task:
         return False
 
-    if user.role == ["Admin","Head"]:
+    if user.role in ["Admin","Head"]:
         return user.department_id == task.project.department_id
 
 
@@ -103,7 +103,7 @@ def get_visible_projects_for_user(user, selected_department_id=None):
 
         return query.order_by(Project.created_at.desc()).all()
 
-    if user.role == ["Admin","Head"]:
+    if user.role in ["Admin","Head"]:
         return (
             query
             .filter(Project.department_id == user.department_id)
@@ -238,7 +238,7 @@ def can_update_task(user, task):
     if not user or not task:
         return False
 
-    if user.role == ["Admin","Head"]:
+    if user.role in ["Admin","Head"]:
         return True
 
    
@@ -264,7 +264,7 @@ def get_visible_projects_for_user(user, selected_department_id=None):
         )
 
     # Department Admin/Head sees all projects in their own department only
-    if user.role == ["Admin","Head"]:
+    if user.role in ["Admin","Head"]:
         return (
             query
             .filter(Project.department_id == user.department_id)
@@ -368,7 +368,7 @@ def create_project_from_form(form, current_user):
     if not name:
         raise ValueError("Project name is required.")
     
-    if not current_user or current_user.role != ["Admin","Head"]:
+    if not current_user or current_user.role not in ["Admin","Head"]:
         raise PermissionError("Only department admins and heads can create projects.")
 
     if not current_user.department_id:
@@ -629,7 +629,7 @@ def update_task_from_form(task_id, form, user):
 
     old_status = task.status
 
-    if user.role == ["Admin", "Head"]:
+    if user.role in ["Admin", "Head"]:
         task.assigned_user_id = parse_int(form.get("assigned_user_id"))
         task.due_date = parse_date(form.get("due_date"))
         task.priority = form.get("priority", task.priority)

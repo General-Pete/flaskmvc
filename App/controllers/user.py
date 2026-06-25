@@ -41,15 +41,19 @@ def create_department(name, description=None):
     return department
 
 
-def create_user(username, password, role="User", department_id=None):
+def create_user(username, email, password, role="User", department_id=None):
     username = (username or "").strip()
     role = role or "User"
+    email = (email or "").strip().lower()
 
     if role not in USER_ROLES:
         role = "User"
 
     if not username:
         raise ValueError("Username is required.")
+    
+    if not email:
+        raise ValueError("Email is required.")
 
     if not password:
         raise ValueError("Password is required.")
@@ -64,8 +68,14 @@ def create_user(username, password, role="User", department_id=None):
 
     if existing_user:
         raise ValueError("A user with that username already exists.")
+    
+    existing_email = User.query.filter_by(email=email).first()
+
+    if existing_email:
+        raise ValueError("A user with that email already exists.")
 
     new_user = User(
+        email=email,
         username=username,
         password=password,
         role=role,

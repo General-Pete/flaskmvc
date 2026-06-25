@@ -49,6 +49,13 @@
             <button type="submit" class="btn primary login-btn">
                 Login
             </button>
+
+                <p class="forgot-link">
+        <a href="{{ url_for('auth_views.forgot_password') }}">
+            Forgot Password?
+        </a>
+    </p>
+
         </form>
 
         <div class="login-note">

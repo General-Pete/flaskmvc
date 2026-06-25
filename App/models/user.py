@@ -10,6 +10,7 @@ class User(db.Model):
 
     username = db.Column(db.String(50), nullable=False, unique=True, index=True)
     password = db.Column(db.String(255), nullable=False)
+    email    = db.Column(db.String(120), unique=True, nullable=False)
 
     # Admin = department admin/manager/director
     # User = normal department user
@@ -35,15 +36,10 @@ class User(db.Model):
         nullable=False,
         default=False,
     )
-
-    """def __init__(self, username, password, role="User", department_id=None):
-        self.username = username
-        self.role = role or "User"
-        self.department_id = department_id
-        self.set_password(password)"""
     
-    def __init__(self, username, password, role="User", department_id=None, must_change_password=False):
+    def __init__(self, username, email, password, role="User", department_id=None, must_change_password=False):
         self.username = username
+        self.email = email
         self.role = role or "User"
         self.department_id = department_id
 
@@ -53,6 +49,7 @@ class User(db.Model):
     def get_json(self):
         return {
             "id": self.id,
+            "email":self.email,
             "username": self.username,
             "role": self.role,
             "department_id": self.department_id,

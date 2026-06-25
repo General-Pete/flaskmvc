@@ -60,13 +60,14 @@ def create_person_action():
         return redirect(url_for("projects.dashboard"))
 
     username = request.form.get("username", "").strip()
+    email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "")
     role = request.form.get("role", "User")
     department_id_raw = request.form.get("department_id")
     department_id = int(department_id_raw) if department_id_raw else None
 
     try:
-        create_user(username, password, role, department_id)
+        create_user(username, email, password, role, department_id)
         flash(f"Person {username} created.", "success")
 
     except ValueError as ex:
@@ -146,6 +147,7 @@ def create_user_endpoint():
     try:
         user = create_user(
             data.get("username"),
+            data.get("email"),
             data.get("password"),
             data.get("role", "User")
         )

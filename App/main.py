@@ -13,6 +13,7 @@ from App.controllers import (
 )
 
 from App.views import views, setup_admin
+from App.extensions import mail
 
 
 def add_views(app):
@@ -47,6 +48,8 @@ def create_app(overrides={}):
     jwt = setup_jwt(app)
 
     setup_admin(app)
+    
+    mail.init_app(app)
 
     if app.config.get("AUTO_CREATE_DB", False):
         create_db(app)

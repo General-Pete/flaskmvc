@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Project Tracker{% endblock %}</title>
 
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <link 
         rel="shortcut icon" 
         href="{{ url_for('static', filename='favicon.ico') }}"
@@ -21,8 +24,7 @@
         rel="stylesheet" 
         href="{{ url_for('static', filename='css/project_tracker.css') }}"
     >
-</head>
-
+    
 <body class="{% block body_class %}light-body{% endblock %}">
 
     {% block nav %}
@@ -38,9 +40,15 @@
                     {% if current_user.role == "Admin" or current_user.role == "Head" %}
                         <a href="{{ url_for('projects.create_project') }}">Add Project</a>
                         <a href="{{ url_for('user_views.get_people_page') }}">People</a>
+                        
         
                     {% endif %}
+
+                    {% if current_user.role == "Admin"%}
+                    <a href="{{ url_for('department_views.add_department')}}">Department</a>
+                {% endif %}
                 </div>
+                
 
                 <div class="global-nav-right">
                     <span>

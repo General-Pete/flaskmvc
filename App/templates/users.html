@@ -32,9 +32,21 @@
                         type="text" 
                         maxlength="20"
                         required
-                        placeholder="Michelle"
+                        placeholder="Name"
                     >
                 </div>
+
+                                     <div class="form-group">
+                <label for="email">Email Address</label>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="Enter email address"
+                >
+            </div>
+
 
                 <div class="form-group">
                     <label for="password">Temporary Password</label>
@@ -47,6 +59,7 @@
                     >
                 </div>
 
+       
                 <div class="form-group">
                     <label for="role">Role</label>
                     <select id="role" name="role">
@@ -86,14 +99,18 @@
                         <div class="person-row">
                             <div>
                                 <div class="person-name">
-                                    {{ user.username }}
-                                    <span class="role-pill">{{ user.role }}</span>
-                                </div>
+                                {{ user.username }}
+                                <span class="role-pill">{{ user.role }}</span>
+                            </div>
 
-                                <div class="person-sub">
-                                    {{ user.department.name if user.department else "No department" }}
-                                    · User ID: {{ user.id }}
-                                </div>
+                            <div class="person-sub">
+                                {{ user.email }}
+                            </div>
+
+                            <div class="person-sub">
+                                {{ user.department.name if user.department else "No department" }}
+                                · User ID: {{ user.id }}
+                            </div>
                             </div>
 
                             <div class="person-actions">

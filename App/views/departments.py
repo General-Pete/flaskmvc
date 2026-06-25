@@ -54,5 +54,47 @@ def add_department():
         return redirect(url_for("department_views.list_departments"))
 
     return render_template(
-        "departments/add_department.html"
+        "project_tracker/add_department.html",
+        departments=Department.query.order_by(
+            Department.name.asc()
+        ).all()
+    )
+
+
+@department_views.route("/departments/<int:department_id>/delete", methods=["POST"])
+@jwt_required()
+def delete_department(department_id):
+
+    department = Department.query.get_or_404(department_id)
+
+    if department.users:
+        flash(
+            "Cannot delete department because users are assigned to it.",
+            "error"
+        )
+        return redirect(url_for("department_views.add_department"))
+
+    if department.projects:
+        flash(
+            "Cannot delete department because projects are assigned to it.",
+            "error"
+        )
+        return redirect(url_for("department_views.add_department"))
+
+    db.session.delete(department)
+    db.session.commit()
+
+    flash("Department deleted successfully.", "success")
+
+    return redirect(url_for("department_views.add_department"))
+
+@department_views.route("/departments", methods=["GET"])
+@jwt_required()
+def list_departments():
+
+    departments = Department.query.order_by(Department.name.asc()).all()
+
+    return render_template(
+        "project_tracker/add_department.html",
+        departments=departments
     )

@@ -1,42 +1,130 @@
 {% extends "project_tracker/base.html" %}
 
-{% block title %}Add Department{% endblock %}
+{% block title %}Manage Departments{% endblock %}
+{% block body_class %}light-body{% endblock %}
 
 {% block content %}
 
-<div class="page-header">
-    <h1>Add Department</h1>
-    <p>Create a new department.</p>
-</div>
+<div class="wrapper">
 
-<div class="card">
-
-<form method="POST">
-
-    <div class="form-group">
-        <label>Department Name</label>
-        <input
-            type="text"
-            name="name"
-            required
-            placeholder="Enter department name"
-        >
+    <div class="dept-page-header">
+        <h1 class="dept-page-title">Manage Departments</h1>
+        <p class="dept-page-subtitle">
+            View and manage all departments in the organization.
+        </p>
     </div>
 
-    <div class="form-group">
-        <label>Description</label>
-        <textarea
-            name="description"
-            rows="4"
-            placeholder="Department description"
-        ></textarea>
+    <div class="department-layout">
+
+        <div class="department-form-card">
+
+            <div class="dept-card-header">
+                <div class="dept-card-icon">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+
+                <div>
+                    <h2>Add New Department</h2>
+                    <p>Create a new department.</p>
+                </div>
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('department_views.add_department') }}">
+
+                <div class="dept-form-group">
+                    <label>Department Name *</label>
+
+                    <input type="text"
+                           name="name"
+                           required
+                           placeholder="Enter department name">
+                </div>
+
+                <button type="submit" class="dept-btn-add">
+                    <i class="fa-solid fa-plus"></i>
+                    Add Department
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="department-table-card">
+
+            <div class="dept-table-header">
+
+                <div>
+                    <h2>All Departments</h2>
+                    <p>View and manage all departments.</p>
+                </div>
+
+                <div class="department-count">
+                    {{ departments|length }} Departments
+                </div>
+
+            </div>
+
+            {% if departments %}
+
+            <table class="department-table">
+
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Users</th>
+                        <th>Projects</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for department in departments %}
+                <tr>
+
+                    <td><strong>{{ department.name }}</strong></td>
+                    <td>{{ department.users|length }}</td>
+                    <td>{{ department.projects|length }}</td>
+
+                    <td>
+                        {% if department.is_active %}
+                            <span class="dept-status-badge active">Active</span>
+                        {% else %}
+                            <span class="dept-status-badge inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <form method="POST"
+                              action="{{ url_for('department_views.delete_department', department_id=department.id) }}"
+                              onsubmit="return confirm('Are you sure you want to delete {{ department.name}}? This action cannot be undone. ');"
+                            >
+                            <button class="dept-action-btn dept-delete-btn">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+
+                        </form>
+                    </td>
+
+                </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="dept-empty-state">
+                No departments have been created yet.
+            </div>
+
+            {% endif %}
+
+        </div>
+
     </div>
 
-    <button type="submit" class="btn primary">
-        Create Department
-    </button>
-
-</form>
 </div>
 
 {% endblock %}
