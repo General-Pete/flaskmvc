@@ -1203,77 +1203,60 @@ textarea {
     border-radius: 999px;
 }
 /*------------------------------------PEOPLE PAGE--------------------------------------------- */
-.people-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 18px;
-    margin-bottom: 22px;
-}
-
-.people-layout {
-    display: grid;
-    grid-template-columns: .75fr 1.25fr;
-    gap: 22px;
-}
-
-.small-heading {
-    margin: 0 0 18px;
-    font-size: 24px;
-    font-weight: 900;
-    letter-spacing: -0.03em;
-}
-
-.people-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.person-row {
-    background: #f8fafc;
-    border: 1px solid #e6edf6;
-    border-radius: 18px;
-    padding: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-}
-
-.person-name {
-    font-weight: 900;
-    font-size: 18px;
-}
-
-.person-sub {
-    color: #64748b;
-    font-size: 13px;
-    margin-top: 3px;
-}
-
-.person-info{
-    flex:1;
-}
-
-.person-actions{
+.people-page .people-header{
     display:flex;
+    justify-content:space-between;
     align-items:center;
-    gap:10px;
+    margin-bottom:30px;
 }
 
-@media (max-width: 900px) {
-    .global-nav,
-    .people-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .people-layout {
-        grid-template-columns: 1fr;
-    }
+.people-page .people-header-left{
+    display:flex;
+    flex-direction:column;
 }
 
+.people-page .people-header-left .page-title{
+    margin:0;
+}
+
+.people-page .people-header-left .sub{
+    margin-top:6px;
+}
+
+.people-page .people-count{
+
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    padding:8px 18px;
+
+    border-radius:999px;
+
+    background:#eef4ff;
+
+    color:#2563eb;
+
+    font-size:14px;
+    font-weight:700;
+
+    white-space:nowrap;
+
+}
+
+.people-page .people-count i{
+    font-size:25px;
+}
+
+@media (max-width:900px){
+
+    .people-page .people-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+}
 
 .role-pill {
     display: inline-flex;
@@ -4312,15 +4295,1003 @@ textarea {
     }
 }
 
-.password-help{
-    display:block;
-    margin-top:10px;
-    color:#6b7280;
-    font-size:0.9rem;
-    line-height:1.5;
+/*==================================================
+                    PEOPLE PAGE
+==================================================*/
+/*==================================================
+                PEOPLE PAGE
+==================================================*/
+
+.people-page{
+    padding:30px;
 }
 
-.password-help ul{
-    margin:8px 0 0 20px;
-    padding:0;
+/*==================================================
+                PAGE HEADER
+==================================================*/
+
+.people-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.people-title{
+    font-size:38px;
+    font-weight:800;
+    color:#1e293b;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin:0;
+}
+
+.people-title i{
+    color:#2563eb;
+}
+
+.people-subtitle{
+    margin-top:8px;
+    color:#64748b;
+    font-size:16px;
+}
+
+.people-count-card{
+
+    min-width:170px;
+
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
+
+    color:white;
+
+    border-radius:20px;
+
+    padding:22px;
+
+    text-align:center;
+
+    box-shadow:0 15px 35px rgba(37,99,235,.30);
+
+}
+
+.people-count-number{
+
+    font-size:42px;
+
+    font-weight:800;
+
+    line-height:1;
+
+}
+
+.people-count-text{
+
+    margin-top:10px;
+
+    font-size:15px;
+
+    opacity:.9;
+
+}
+
+/*==================================================
+                MAIN GRID
+==================================================*/
+
+.people-layout{
+
+    display:grid;
+
+    grid-template-columns:370px 1fr;
+
+    gap:28px;
+
+    align-items:start;
+
+}
+
+/*==================================================
+                    CARDS
+==================================================*/
+
+.people-card{
+
+    background:#ffffff;
+
+    border-radius:22px;
+
+    padding:28px;
+
+    border:1px solid #e2e8f0;
+
+    box-shadow:0 12px 35px rgba(15,23,42,.06);
+
+}
+
+.card-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    margin-bottom:25px;
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#1e293b;
+
+}
+
+.card-title i{
+
+    color:#2563eb;
+
+}
+
+.users-heading{
+
+    font-size:28px;
+
+    font-weight:700;
+
+    color:#1e293b;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin:0;
+
+}
+
+.users-heading i{
+
+    color:#2563eb;
+
+}
+
+.users-subtitle{
+
+    margin-top:8px;
+
+    color:#64748b;
+
+    font-size:15px;
+
+}
+
+.users-toolbar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+}
+
+/*==================================================
+                ADD USER FORM
+==================================================*/
+
+.add-user-card form{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+.add-user-card .form-group{
+    margin:0;
+}
+
+.add-user-card label{
+    display:block;
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:600;
+    color:#334155;
+}
+
+.add-user-card input,
+.add-user-card select{
+
+    width:100%;
+
+    padding:14px 16px;
+
+    border:1px solid #dbe3ef;
+
+    border-radius:14px;
+
+    background:#f8fafc;
+
+    color:#1e293b;
+
+    font-size:15px;
+
+    transition:.25s;
+
+}
+
+.add-user-card input::placeholder{
+
+    color:#94a3b8;
+
+}
+
+.add-user-card input:focus,
+.add-user-card select:focus{
+
+    outline:none;
+
+    border-color:#2563eb;
+
+    background:#ffffff;
+
+    box-shadow:0 0 0 4px rgba(37,99,235,.12);
+
+}
+
+.people-primary-btn{
+
+    margin-top:10px;
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+.people-primary-btn:hover{
+
+    background:#1d4ed8;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 25px rgba(37,99,235,.30);
+
+}
+
+/*==================================================
+                    SEARCH BAR
+==================================================*/
+
+.people-search{
+
+    position:relative;
+
+    margin-bottom:28px;
+
+}
+
+.people-search i{
+
+    position:absolute;
+
+    left:18px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#94a3b8;
+
+    font-size:15px;
+
+}
+
+.people-search input{
+
+    width:100%;
+
+    padding:15px 18px 15px 48px;
+
+    border:1px solid #dbe3ef;
+
+    border-radius:14px;
+
+    background:#ffffff;
+
+    font-size:15px;
+
+    transition:.25s;
+
+}
+
+.people-search input::placeholder{
+
+    color:#94a3b8;
+
+}
+
+.people-search input:focus{
+
+    outline:none;
+
+    border-color:#2563eb;
+
+    box-shadow:0 0 0 4px rgba(37,99,235,.12);
+
+}
+
+/*==================================================
+                    TABLE
+==================================================*/
+
+.people-table-container{
+
+    width:100%;
+
+    overflow-x:auto;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:18px;
+
+}
+
+.people-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:#ffffff;
+
+}
+
+.people-table thead{
+
+    background:#f8fafc;
+
+}
+
+.people-table th{
+
+    padding:18px;
+
+    text-align:left;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    color:#475569;
+
+    border-bottom:2px solid #e2e8f0;
+
+    white-space:nowrap;
+
+}
+
+.people-table td{
+
+    padding:18px;
+
+    border-bottom:1px solid #edf2f7;
+
+    color:#334155;
+
+    font-size:15px;
+
+    vertical-align:middle;
+
+}
+
+.people-table tbody tr{
+
+    transition:.25s;
+
+}
+
+.people-table tbody tr:hover{
+
+    background:#f8fbff;
+
+}
+
+/*==================================================
+                USER COLUMN
+==================================================*/
+
+.user-cell{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+}
+
+.user-avatar{
+
+    width:44px;
+
+    height:44px;
+
+    border-radius:50%;
+
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
+
+    color:white;
+
+    font-size:18px;
+
+    font-weight:700;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-shrink:0;
+
+}
+
+.user-name{
+
+    font-weight:700;
+
+    color:#1e293b;
+
+    font-size:15px;
+
+}
+
+.user-id{
+
+    display:inline-block;
+
+    padding:6px 12px;
+
+    background:#eef4ff;
+
+    color:#2563eb;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    font-weight:700;
+
+}
+
+/*==================================================
+                ROLE DROPDOWN
+==================================================*/
+
+.role-select{
+
+    width:140px;
+
+    padding:10px 14px;
+
+    border:1px solid #dbe3ef;
+
+    border-radius:10px;
+
+    background:#ffffff;
+
+    color:#1e293b;
+
+    font-size:14px;
+
+    transition:.25s;
+
+}
+
+.role-select:focus{
+
+    outline:none;
+
+    border-color:#2563eb;
+
+    box-shadow:0 0 0 3px rgba(37,99,235,.12);
+
+}
+
+/*==================================================
+                ACTION BUTTONS
+==================================================*/
+
+.action-group{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+.action-group form{
+
+    margin:0;
+
+}
+
+.table-btn{
+
+    width:42px;
+
+    height:42px;
+
+    border:none;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    transition:.25s;
+
+    font-size:15px;
+
+}
+
+/* EDIT */
+
+.edit-btn{
+
+    background:#e0ecff;
+
+    color:#2563eb;
+
+}
+
+.edit-btn:hover{
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+}
+
+/* RESET */
+
+.reset-btn{
+
+    background:#fff8db;
+
+    color:#ca8a04;
+
+}
+
+.reset-btn:hover{
+
+    background:#ca8a04;
+
+    color:#ffffff;
+
+}
+
+/* DELETE */
+
+.delete-btn{
+
+    background:#fee2e2;
+
+    color:#dc2626;
+
+}
+
+.delete-btn:hover{
+
+    background:#dc2626;
+
+    color:#ffffff;
+
+}
+
+/*==================================================
+                EMPTY STATE
+==================================================*/
+
+.people-empty{
+
+    text-align:center;
+
+    padding:70px 30px;
+
+    color:#64748b;
+
+}
+
+.people-empty i{
+
+    font-size:52px;
+
+    color:#cbd5e1;
+
+    margin-bottom:20px;
+
+}
+
+.people-empty h3{
+
+    margin-bottom:10px;
+
+    color:#334155;
+
+    font-size:24px;
+
+}
+
+/*==================================================
+                    EDIT MODAL
+==================================================*/
+
+.people-modal{
+
+    display:none;
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(15,23,42,.60);
+
+    z-index:9999;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:25px;
+
+}
+
+.people-modal-content{
+
+    width:100%;
+
+    max-width:560px;
+
+    background:#ffffff;
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    box-shadow:0 30px 80px rgba(15,23,42,.30);
+
+    animation:peopleModal .25s ease;
+
+}
+
+.people-modal-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:22px 28px;
+
+    border-bottom:1px solid #e2e8f0;
+
+}
+
+.people-modal-header h2{
+
+    margin:0;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    color:#1e293b;
+
+    font-size:28px;
+
+    font-weight:700;
+
+}
+
+.people-modal-header i{
+
+    color:#2563eb;
+
+}
+
+.modal-close{
+
+    width:42px;
+
+    height:42px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#f1f5f9;
+
+    color:#64748b;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.modal-close:hover{
+
+    background:#dc2626;
+
+    color:#ffffff;
+
+}
+
+.people-modal form{
+
+    padding:28px;
+
+}
+
+.people-modal .form-group{
+
+    margin-bottom:20px;
+
+}
+
+.people-modal label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+    color:#334155;
+
+}
+
+.people-modal input,
+.people-modal select{
+
+    width:100%;
+
+    padding:14px 16px;
+
+    border:1px solid #dbe3ef;
+
+    border-radius:14px;
+
+    background:#f8fafc;
+
+    transition:.25s;
+
+}
+
+.people-modal input:focus,
+.people-modal select:focus{
+
+    outline:none;
+
+    border-color:#2563eb;
+
+    background:#ffffff;
+
+    box-shadow:0 0 0 4px rgba(37,99,235,.12);
+
+}
+
+.modal-buttons{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:12px;
+
+    margin-top:30px;
+
+}
+
+.modal-buttons .btn{
+
+    min-width:150px;
+
+}
+
+/*==================================================
+                ANIMATION
+==================================================*/
+
+@keyframes peopleModal{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/*==================================================
+                RESPONSIVE
+==================================================*/
+
+@media (max-width:1100px){
+
+    .people-layout{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .people-count-card{
+
+        display:none;
+
+    }
+
+}
+
+@media (max-width:900px){
+
+    .users-toolbar{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:18px;
+
+    }
+
+    .people-search{
+
+        width:100%;
+
+    }
+
+    .people-search input{
+
+        width:100%;
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    .people-page{
+
+        padding:18px;
+
+    }
+
+    .people-header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:20px;
+
+    }
+
+    .people-title{
+
+        font-size:32px;
+
+    }
+
+    .people-card{
+
+        padding:20px;
+
+    }
+
+    .people-table th,
+    .people-table td{
+
+        padding:12px;
+
+        font-size:14px;
+
+    }
+
+    .role-select{
+
+        width:110px;
+
+    }
+
+    .table-btn{
+
+        width:38px;
+
+        height:38px;
+
+    }
+
+}
+
+@media (max-width:600px){
+
+    .user-avatar{
+
+        width:36px;
+
+        height:36px;
+
+        font-size:14px;
+
+    }
+
+    .people-modal-content{
+
+        max-width:100%;
+
+        border-radius:18px;
+
+    }
+
+    .modal-buttons{
+
+        flex-direction:column;
+
+    }
+
+    .modal-buttons .btn{
+
+        width:100%;
+
+    }
+
 }

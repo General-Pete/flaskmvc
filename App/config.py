@@ -20,11 +20,11 @@ def load_config(app, overrides):
         app.config[key] = overrides[key]
 
     #Email
-    MAIL_SERVER = "smtp.gmail.com"
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
+    app.config["MAIL_SERVER"] = "smtp.office365.com"
+    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_USE_TLS"] = True
 
-    MAIL_USERNAME = "yourgmail@gmail.com"
-    MAIL_PASSWORD = "your_google_app_password"
+    app.config["MAIL_USERNAME"] = "yourname@mhs.gov.tt"
+    app.config["MAIL_PASSWORD"] = "your_password_or_app_password"
 
-    MAIL_DEFAULT_SENDER = "yourgmail@gmail.com"    
+    app.config["MAIL_DEFAULT_SENDER"] = "yourname@mhs.gov.tt"

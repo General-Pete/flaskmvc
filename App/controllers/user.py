@@ -1,6 +1,9 @@
 from App.models import User, Department
 from App.database import db
 
+import secrets
+import string
+
 
 USER_ROLES = [
     "Admin",
@@ -8,6 +11,14 @@ USER_ROLES = [
     "Exec",
     "Head"
 ]
+
+def generate_temp_password(length=10):
+    alphabet = string.ascii_letters + string.digits
+
+    return "".join(
+        secrets.choice(alphabet)
+        for _ in range(length)
+    )
 
 
 def get_all_departments():
@@ -52,8 +63,11 @@ def create_user(username, email, password, role="User", department_id=None):
     if not username:
         raise ValueError("Username is required.")
     
-    if not email:
-        raise ValueError("Email is required.")
+    if email:
+        existing_email = User.query.filter_by(email=email).first()
+
+    if existing_email:
+        raise ValueError("A user with that email already exists.")
 
     if not password:
         raise ValueError("Password is required.")
@@ -70,9 +84,6 @@ def create_user(username, email, password, role="User", department_id=None):
         raise ValueError("A user with that username already exists.")
     
     existing_email = User.query.filter_by(email=email).first()
-
-    if existing_email:
-        raise ValueError("A user with that email already exists.")
 
     new_user = User(
         email=email,
@@ -115,36 +126,67 @@ def get_all_users_json():
     return [user.get_json() for user in users]
 
 
-def update_user(id, username=None, role=None, department_id=None):
+def update_user(id, username=None, email=None, role=None, department_id=None):
+
     user = get_user(id)
 
     if not user:
         return None
 
+    # -----------------------------
+    # Username
+    # -----------------------------
     if username is not None:
+
         username = username.strip()
 
-        if not username:
+        if username == "":
             raise ValueError("Username is required.")
+
+        existing = User.query.filter_by(username=username).first()
+
+        if existing and existing.id != user.id:
+            raise ValueError("Username already exists.")
 
         user.username = username
 
+   
+
+    if email is not None:
+
+        email = email.strip().lower()
+
+    if email != "":
+
+        existing = User.query.filter_by(email=email).first()
+
+        if existing and existing.id != user.id:
+            raise ValueError("Email already exists.")
+
+        user.email = email
+
+   
     if role is not None:
+
         if role not in USER_ROLES:
             raise ValueError("Invalid role.")
 
         user.role = role
 
+    # -----------------------------
+    # Department
+    # -----------------------------
+    if department_id is not None:
+        user.department_id = department_id
+
     if user.role == "Exec":
         user.department_id = None
-    else:
-        if department_id is not None:
-            user.department_id = department_id
 
-        if not user.department_id:
-            raise ValueError("Department is required for Admin and User accounts.")
+    elif not user.department_id:
+        raise ValueError(
+            "Department is required for Admin, Head and User accounts."
+        )
 
-    db.session.add(user)
     db.session.commit()
 
     return user
@@ -160,3 +202,20 @@ def delete_user(id):
     db.session.commit()
 
     return user
+
+def reset_user_password(id):
+
+    user = get_user(id)
+
+    if not user:
+        return None
+
+    new_password = generate_temp_password()
+
+    user.set_password(new_password)
+
+    user.must_change_password = True
+
+    db.session.commit()
+
+    return new_password

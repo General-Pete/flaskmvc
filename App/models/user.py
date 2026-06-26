@@ -10,7 +10,7 @@ class User(db.Model):
 
     username = db.Column(db.String(50), nullable=False, unique=True, index=True)
     password = db.Column(db.String(255), nullable=False)
-    email    = db.Column(db.String(120), unique=True, nullable=False)
+    email    = db.Column(db.String(120), unique=True, nullable=True)
 
     # Admin = department admin/manager/director
     # User = normal department user

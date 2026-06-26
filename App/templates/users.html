@@ -5,148 +5,631 @@
 
 {% block content %}
 
-<div class="wrapper">
-    <div class="people-header">
-        <div>
-            <h1 class="page-title">People</h1>
-            <div class="sub">
-                Add persons who can be assigned to tasks and control their role.
-            </div>
-        </div>
+<div class="wrapper people-page">
 
-        <a href="{{ url_for('projects.dashboard') }}" class="btn secondary">
-            Back to Dashboard
-        </a>
+    <!-- ========================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ========================================= -->
+<div class="people-header">
+
+    <div class="people-header-left">
+
+        <h1 class="page-title">
+            People
+        </h1>
+
+        <p class="sub">
+            View and manage all users in the system.
+        </p>
+
     </div>
+
+    <div class="people-count">
+
+        <i class="fa-solid fa-users"></i>
+
+        <span>{{ users|length }} People</span>
+
+    </div>
+
+</div>
+
+    <!-- ========================================= -->
+    <!-- MAIN LAYOUT -->
+    <!-- ========================================= -->
 
     <div class="people-layout">
-        <div class="card">
-            <h2 class="small-heading">Add Person</h2>
 
-            <form method="POST" action="{{ url_for('user_views.create_person_action') }}">
-                <div class="form-group">
-                    <label for="username">Name / Username</label>
-                    <input 
-                        id="username" 
-                        name="username" 
-                        type="text" 
-                        maxlength="20"
-                        required
-                        placeholder="Name"
-                    >
-                </div>
+        <!-- ========================================= -->
+        <!-- LEFT CARD -->
+        <!-- ========================================= -->
 
-                                     <div class="form-group">
-                <label for="email">Email Address</label>
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="Enter email address"
-                >
+        <div class="people-card add-user-card">
+
+            <div class="card-title">
+
+                <i class="fa-solid fa-user-plus"></i>
+
+                <span>Add New User</span>
+
             </div>
 
+            <form
+                method="POST"
+                action="{{ url_for('user_views.create_person_action') }}">
 
                 <div class="form-group">
-                    <label for="password">Temporary Password</label>
-                    <input 
-                        id="password" 
-                        name="password" 
-                        type="password" 
-                        required
-                        placeholder="Set a temporary password"
-                    >
+
+                    <label>Name / Username</label>
+
+                    <input
+                        type="text"
+                        name="username"
+                        maxlength="20"
+                        placeholder="Enter username"
+                        required>
+
                 </div>
 
-       
                 <div class="form-group">
-                    <label for="role">Role</label>
-                    <select id="role" name="role">
+
+                    <label>Email Address</label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Enter email address"
+                        required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Temporary Password</label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Temporary password"
+                        required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Role</label>
+
+                    <select name="role">
+
                         {% for role in roles %}
-                            <option value="{{ role }}" {% if role == "User" %}selected{% endif %}>
-                                {{ role }}
-                            </option>
+
+                        <option
+                            value="{{ role }}"
+                            {% if role=="User" %}selected{% endif %}>
+
+                            {{ role }}
+
+                        </option>
+
                         {% endfor %}
+
                     </select>
+
                 </div>
 
+                {% if current_user.role == "Admin" %}
+
                 <div class="form-group">
-                    <label for="department_id">Department</label>
-                    <select id="department_id" name="department_id">
-                        <option value="">No department / Executive</option>
+
+                    <label>Department</label>
+
+                    <select name="department_id">
+
+                        <option value="">
+                            No Department / Executive
+                        </option>
 
                         {% for department in departments %}
-                            <option value="{{ department.id }}">
-                                {{ department.name }}
-                            </option>
+
+                        <option value="{{ department.id }}">
+                            {{ department.name }}
+                        </option>
+
                         {% endfor %}
+
                     </select>
+
                 </div>
 
-                <button class="btn primary" type="submit">
-                    Add Person
+                {% elif current_user.role == "Head" %}
+
+                <div class="form-group">
+
+                    <label>Department</label>
+
+                    <input
+                        type="text"
+                        value="{{ current_user.department.name }}"
+                        readonly>
+
+                    <input
+                        type="hidden"
+                        name="department_id"
+                        value="{{ current_user.department_id }}">
+
+                </div>
+
+                {% endif %}
+
+                <button
+                    type="submit"
+                    class="people-primary-btn">
+
+                    <i class="fa-solid fa-user-plus"></i>
+
+                    Add User
+
                 </button>
+
             </form>
+
         </div>
 
-        <div class="card">
-            <h2 class="small-heading">Current People</h2>
+        <!-- ========================================= -->
+        <!-- RIGHT CARD -->
+        <!-- ========================================= -->
 
-            {% if users %}
-                <div class="people-list">
-                    {% for user in users %}
-                        <div class="person-row">
-                            <div>
-                                <div class="person-name">
-                                {{ user.username }}
-                                <span class="role-pill">{{ user.role }}</span>
-                            </div>
+        <div class="people-card users-card">
 
-                            <div class="person-sub">
+            <div class="users-toolbar">
+
+                <div>
+
+                    <h2 class="users-heading">
+
+                        <i class="fa-solid fa-address-book"></i>
+
+                        Current People
+
+                    </h2>
+
+                    <p class="users-subtitle">
+
+                        Manage existing users, update roles and reset passwords.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- SEARCH -->
+
+            <form
+                method="GET"
+                action="{{ url_for('user_views.get_people_page') }}"
+                id="searchForm"
+                class="people-search">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ search or '' }}"
+                    autocomplete="off"
+                    placeholder="Search username, email, role or department...">
+
+            </form>
+
+            <!-- TABLE  -->
+
+            
+                         {% if users %}
+
+            <div class="people-table-container">
+
+                <table class="people-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th style="width:180px;">Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for user in users %}
+
+                        <tr>
+
+                            <td>
+
+                                <span class="user-id">
+
+                                    #{{ user.id }}
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <div class="user-cell">
+
+                                    <div class="user-avatar">
+
+                                        {{ user.username[:1]|upper }}
+
+                                    </div>
+
+                                    <div>
+
+                                        <div class="user-name">
+
+                                            {{ user.username }}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
                                 {{ user.email }}
-                            </div>
 
-                            <div class="person-sub">
-                                {{ user.department.name if user.department else "No department" }}
-                                · User ID: {{ user.id }}
-                            </div>
-                            </div>
+                            </td>
 
-                            <div class="person-actions">
-                                <form 
-                                    method="POST" 
-                                    action="{{ url_for('user_views.update_person_role_action', user_id=user.id) }}"
-                                >
-                                    <select name="role" onchange="this.form.submit()">
+                            <td>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('user_views.update_person_role_action', user_id=user.id) }}">
+
+                                    <select
+                                        class="role-select"
+                                        name="role"
+                                        onchange="this.form.submit()">
+
                                         {% for role in roles %}
-                                            <option value="{{ role }}" {% if user.role == role %}selected{% endif %}>
-                                                {{ role }}
-                                            </option>
+
+                                        <option
+                                            value="{{ role }}"
+                                            {% if user.role == role %}selected{% endif %}>
+
+                                            {{ role }}
+
+                                        </option>
+
                                         {% endfor %}
+
                                     </select>
+
                                 </form>
 
-                                <form 
-                                    method="POST" 
-                                    action="{{ url_for('user_views.delete_person_action', user_id=user.id) }}"
-                                    onsubmit="return confirm('Delete this person?');"
-                                >
-                                    <button class="delete-btn" type="submit">
-                                        ×
+                            </td>
+
+                            <td>
+
+                                {% if user.department %}
+
+                                    {{ user.department.name }}
+
+                                {% else %}
+
+                                   None
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                <div class="action-group">
+
+                                    <!-- EDIT -->
+
+                                    <button
+                                        type="button"
+                                        class="table-btn edit-btn"
+
+                                        onclick="openModal(
+                                            '{{ user.id }}',
+                                            '{{ user.username }}',
+                                            '{{ user.email }}',
+                                            '{{ user.role }}',
+                                            '{{ user.department_id }}'
+                                        )">
+
+                                        <i class="fa-solid fa-pen-to-square"></i>
+
                                     </button>
-                                </form>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
+
+                                    <!-- RESET PASSWORD -->
+
+                                    <button
+                                        type="button"
+                                        class="table-btn reset-btn"
+                                        title="Reset Password"
+
+                                        onclick="confirmReset(
+                                            '{{ user.id }}',
+                                            '{{ user.username }}'
+                                        )">
+
+                                        <i class="fa-solid fa-key"></i>
+
+                                    </button>
+
+                                    <!-- DELETE -->
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('user_views.delete_person_action', user_id=user.id) }}"
+                                        onsubmit="return confirm('Delete {{ user.username }}?');">
+
+                                        <button
+                                            type="submit"
+                                            class="table-btn delete-btn">
+
+                                            <i class="fa-solid fa-trash"></i>
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
             {% else %}
-                <div class="empty-state light-empty">
-                    No people have been added yet.
-                </div>
+
+            <div class="people-empty">
+
+                <i class="fa-solid fa-users-slash"></i>
+
+                <h3>No Users Found</h3>
+
+                <p>
+
+                    There are currently no users in the system.
+
+                </p>
+
+            </div>
+
             {% endif %}
+
         </div>
+
     </div>
+
+    <!-- ===================================================== -->
+<!-- EDIT USER MODAL -->
+<!-- ===================================================== -->
+
+<div id="editModal" class="people-modal">
+
+    <div class="people-modal-content">
+
+        <div class="people-modal-header">
+
+            <h2>
+                <i class="fa-solid fa-user-pen"></i>
+                Edit User
+            </h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeModal()">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+        <form
+            id="editForm"
+            method="POST">
+
+            <div class="form-group">
+
+                <label>Username</label>
+
+                <input
+                    type="text"
+                    id="editUsername"
+                    name="username"
+                    required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Email Address</label>
+
+                <input
+                    type="email"
+                    id="editEmail"
+                    name="email"
+                    required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Role</label>
+
+                <select
+                    id="editRole"
+                    name="role">
+
+                    {% for role in roles %}
+
+                    <option value="{{ role }}">
+                        {{ role }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            {% if current_user.role == "Admin" %}
+
+            <div class="form-group">
+
+                <label>Department</label>
+
+                <select
+                    id="editDepartment"
+                    name="department_id">
+
+                    {% for department in departments %}
+
+                    <option value="{{ department.id }}">
+                        {{ department.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            {% endif %}
+
+            <div class="modal-buttons">
+
+                <button
+                    type="button"
+                    class="btn secondary"
+                    onclick="closeModal()">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn primary">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    Save Changes
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
+
+<!-- ===================================================== -->
+<!-- PAGE JAVASCRIPT -->
+<!-- ===================================================== -->
+
+<script>
+
+const searchBox = document.getElementById("search");
+
+if (searchBox){
+
+    let timer;
+
+    searchBox.addEventListener("keyup", function(){
+
+        clearTimeout(timer);
+
+        timer = setTimeout(function(){
+
+            document.getElementById("searchForm").submit();
+
+        },300);
+
+    });
+
+}
+
+function confirmReset(id, name){
+
+    if(confirm("Generate a new temporary password for " + name + "?")){
+
+        window.location = "/people/" + id + "/reset-password";
+
+    }
+
+}
+
+function openModal(id, username, email, role, department){
+
+    document.getElementById("editModal").style.display = "flex";
+
+    document.getElementById("editUsername").value = username;
+
+    document.getElementById("editEmail").value = email;
+
+    document.getElementById("editRole").value = role;
+
+    const dept = document.getElementById("editDepartment");
+
+    if(dept){
+
+        dept.value = department;
+
+    }
+
+    document.getElementById("editForm").action = "/people/" + id + "/edit";
+
+}
+
+function closeModal(){
+
+    document.getElementById("editModal").style.display = "none";
+
+}
+
+window.onclick = function(event){
+
+    const modal = document.getElementById("editModal");
+
+    if(event.target === modal){
+
+        closeModal();
+
+    }
+
+}
+
+</script>
 
 {% endblock %}
