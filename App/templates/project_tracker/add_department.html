@@ -7,116 +7,239 @@
 
 <div class="wrapper">
 
+  
+    <!-- PAGE HEADER -->
+    
+
     <div class="dept-page-header">
-        <h1 class="dept-page-title">Manage Departments</h1>
-        <p class="dept-page-subtitle">
-            View and manage all departments in the organization.
-        </p>
+
+        <div>
+
+            <h1 class="dept-page-title">
+                Manage Departments
+            </h1>
+
+            <p class="dept-page-subtitle">
+                View and manage all departments in the organization.
+            </p>
+
+        </div>
+
+       
+
     </div>
 
+  
+    <!-- MAIN LAYOUT -->
+    
+
     <div class="department-layout">
+
+       
+        <!-- ADD DEPARTMENT CARD -->
+    
 
         <div class="department-form-card">
 
             <div class="dept-card-header">
+
                 <div class="dept-card-icon">
                     <i class="fa-solid fa-building"></i>
                 </div>
 
                 <div>
+
                     <h2>Add New Department</h2>
+
                     <p>Create a new department.</p>
+
                 </div>
+
             </div>
 
-            <form method="POST"
-                  action="{{ url_for('department_views.add_department') }}">
+            <form
+                method="POST"
+                action="{{ url_for('department_views.add_department') }}">
 
                 <div class="dept-form-group">
-                    <label>Department Name *</label>
 
-                    <input type="text"
-                           name="name"
-                           required
-                           placeholder="Enter department name">
+                    <label>Department Name</label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        required
+                        placeholder="Enter department name">
+
                 </div>
 
-                <button type="submit" class="dept-btn-add">
+                <button
+                    type="submit"
+                    class="dept-btn-add">
+
                     <i class="fa-solid fa-plus"></i>
+
                     Add Department
+
                 </button>
 
             </form>
 
         </div>
 
+        <!-- DEPARTMENT TABLE CARD -->
+       
+
         <div class="department-table-card">
 
             <div class="dept-table-header">
 
                 <div>
-                    <h2>All Departments</h2>
+
+                    <h2>Current Departments</h2>
+
                     <p>View and manage all departments.</p>
+
                 </div>
 
-                <div class="department-count">
-                    {{ departments|length }} Departments
-                </div>
+                 <div class="department-count">
+
+            <i class="fa-solid fa-building"></i>
+
+           <span>{{ departments|length }} Departments </span>
+           
+        </div>
+
+            </div>
+
+            <!-- SEARCH -->
+
+            <div class="dept-search">
+
+                <form
+                    method="GET"
+                    action="{{ url_for('department_views.list_departments') }}"
+                    id="departmentSearchForm">
+
+                    <input
+                        type="text"
+                        id="departmentSearch"
+                        name="search"
+                        placeholder="Search departments..."
+                        value="{{ search or '' }}"
+                        autocomplete="off">
+
+                </form>
 
             </div>
 
             {% if departments %}
 
-            <table class="department-table">
+            <div class="dept-table-wrapper">
 
-                <thead>
+                <table class="department-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Department</th>
+                            <th>Users</th>
+                            <th>Projects</th>
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for department in departments %}
+
                     <tr>
-                        <th>Department</th>
-                        <th>Users</th>
-                        <th>Projects</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+
+                        <td>
+
+                            {{ department.id }}
+
+                        </td>
+
+                        <td>
+
+                            <div class="dept-info">
+
+                                <div class="dept-info-name">
+
+                                    {{ department.name }}
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            {{ department.users|length }}
+
+                        </td>
+
+                        <td>
+
+                            {{ department.projects|length }}
+
+                        </td>
+
+                        <td>
+
+                            <div class="dept-actions">
+
+                                <button
+                                    type="button"
+                                    class="dept-action-btn dept-edit-btn"
+                                    title="Edit Department"
+                                    onclick="openEditDepartmentModal('{{ department.id }}','{{ department.name }}')">
+
+                                    <i class="fa-solid fa-pen-to-square"></i>
+
+                                </button>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('department_views.delete_department', department_id=department.id) }}"
+                                    onsubmit="return confirm('Delete {{ department.name }}?');">
+
+                                    <button
+                                        type="submit"
+                                        class="dept-action-btn dept-delete-btn">
+
+                                        <i class="fa-solid fa-trash"></i>
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
                     </tr>
-                </thead>
 
-                <tbody>
-                {% for department in departments %}
-                <tr>
+                    {% endfor %}
 
-                    <td><strong>{{ department.name }}</strong></td>
-                    <td>{{ department.users|length }}</td>
-                    <td>{{ department.projects|length }}</td>
+                    </tbody>
 
-                    <td>
-                        {% if department.is_active %}
-                            <span class="dept-status-badge active">Active</span>
-                        {% else %}
-                            <span class="dept-status-badge inactive">Inactive</span>
-                        {% endif %}
-                    </td>
+                </table>
 
-                    <td>
-                        <form method="POST"
-                              action="{{ url_for('department_views.delete_department', department_id=department.id) }}"
-                              onsubmit="return confirm('Are you sure you want to delete {{ department.name}}? This action cannot be undone. ');"
-                            >
-                            <button class="dept-action-btn dept-delete-btn">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-
-                        </form>
-                    </td>
-
-                </tr>
-                {% endfor %}
-                </tbody>
-
-            </table>
+            </div>
 
             {% else %}
 
             <div class="dept-empty-state">
+
                 No departments have been created yet.
+
             </div>
 
             {% endif %}
@@ -126,5 +249,103 @@
     </div>
 
 </div>
+
+
+<!-- EDIT MODAL -->
+
+
+<div id="editDepartmentModal" class="dept-modal">
+
+    <div class="dept-modal-content">
+
+        <span
+            class="dept-close-modal"
+            onclick="closeDepartmentModal()">
+
+            &times;
+
+        </span>
+
+        <h2>Edit Department</h2>
+
+        <form
+            id="editDepartmentForm"
+            method="POST">
+
+            <div class="dept-form-group">
+
+                <label>Department Name</label>
+
+                <input
+                    type="text"
+                    id="editDepartmentName"
+                    name="name"
+                    required>
+
+            </div>
+
+            <button
+                type="submit"
+                class="dept-btn-add">
+
+                Save Changes
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+function openEditDepartmentModal(id,name){
+
+    document.getElementById("editDepartmentModal").style.display="flex";
+
+    document.getElementById("editDepartmentName").value=name;
+
+    document.getElementById("editDepartmentForm").action="/departments/"+id+"/edit";
+
+}
+
+function closeDepartmentModal(){
+
+    document.getElementById("editDepartmentModal").style.display="none";
+
+}
+
+window.onclick=function(event){
+
+    if(event.target==document.getElementById("editDepartmentModal")){
+
+        closeDepartmentModal();
+
+    }
+
+}
+
+const search=document.getElementById("departmentSearch");
+
+if(search){
+
+    let timer;
+
+    search.addEventListener("keyup",function(){
+
+        clearTimeout(timer);
+
+        timer=setTimeout(function(){
+
+            document.getElementById("departmentSearchForm").submit();
+
+        },250);
+
+    });
+
+}
+
+</script>
 
 {% endblock %}

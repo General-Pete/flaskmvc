@@ -12,8 +12,12 @@ USER_ROLES = [
     "Head"
 ]
 
-def generate_temp_password(length=10):
-    alphabet = string.ascii_letters + string.digits
+def generate_temp_password(length=12):
+    alphabet = (
+        string.ascii_letters +
+        string.digits +
+        "!@#$%&*?"
+    )
 
     return "".join(
         secrets.choice(alphabet)
@@ -53,41 +57,44 @@ def create_department(name, description=None):
 
 
 def create_user(username, email, password, role="User", department_id=None):
+
     username = (username or "").strip()
-    role = role or "User"
     email = (email or "").strip().lower()
+    role = role or "User"
 
     if role not in USER_ROLES:
         role = "User"
 
     if not username:
         raise ValueError("Username is required.")
-    
+
+    if not password:
+        raise ValueError("Password is required.")
+
+    existing_user = User.query.filter_by(username=username).first()
+
+    if existing_user:
+        raise ValueError("A user with that username already exists.")
+
+    existing_email = None
+
     if email:
         existing_email = User.query.filter_by(email=email).first()
 
     if existing_email:
         raise ValueError("A user with that email already exists.")
 
-    if not password:
-        raise ValueError("Password is required.")
-
     if role != "Exec" and not department_id:
-        raise ValueError("Department is required for Admin, Head and User accounts.")
+        raise ValueError(
+            "Department is required for Admin, Head and User accounts."
+        )
 
     if role == "Exec":
         department_id = None
 
-    existing_user = User.query.filter_by(username=username).first()
-
-    if existing_user:
-        raise ValueError("A user with that username already exists.")
-    
-    existing_email = User.query.filter_by(email=email).first()
-
     new_user = User(
-        email=email,
         username=username,
+        email=email,
         password=password,
         role=role,
         department_id=department_id,
@@ -98,7 +105,6 @@ def create_user(username, email, password, role="User", department_id=None):
     db.session.commit()
 
     return new_user
-
 
 def get_user_by_username(username):
     return User.query.filter_by(username=username).first()
@@ -133,9 +139,9 @@ def update_user(id, username=None, email=None, role=None, department_id=None):
     if not user:
         return None
 
-    # -----------------------------
+  
     # Username
-    # -----------------------------
+   
     if username is not None:
 
         username = username.strip()
@@ -173,9 +179,8 @@ def update_user(id, username=None, email=None, role=None, department_id=None):
 
         user.role = role
 
-    # -----------------------------
     # Department
-    # -----------------------------
+  
     if department_id is not None:
         user.department_id = department_id
 
@@ -210,12 +215,10 @@ def reset_user_password(id):
     if not user:
         return None
 
-    new_password = generate_temp_password()
+    temporary_password = generate_temp_password()
 
-    user.set_password(new_password)
-
-    user.must_change_password = True
+    user.reset_password(temporary_password)
 
     db.session.commit()
 
-    return new_password
+    return temporary_password

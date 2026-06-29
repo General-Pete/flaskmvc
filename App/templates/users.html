@@ -24,13 +24,7 @@
 
     </div>
 
-    <div class="people-count">
-
-        <i class="fa-solid fa-users"></i>
-
-        <span>{{ users|length }} People</span>
-
-    </div>
+  
 
 </div>
 
@@ -193,13 +187,17 @@
 
                     </h2>
 
-                    <p class="users-subtitle">
-
-                        Manage existing users, update roles and reset passwords.
-
-                    </p>
 
                 </div>
+
+                <div class="people-count">
+
+        <i class="fa-solid fa-users"></i>
+
+        <span>{{ users|length }} People</span>
+
+    </div>
+
 
             </div>
 
@@ -226,7 +224,7 @@
             <!-- TABLE  -->
 
             
-                         {% if users %}
+            {% if users %}
 
             <div class="people-table-container">
 
@@ -265,13 +263,7 @@
 
                             <td>
 
-                                <div class="user-cell">
-
-                                    <div class="user-avatar">
-
-                                        {{ user.username[:1]|upper }}
-
-                                    </div>
+                               
 
                                     <div>
 
@@ -389,6 +381,7 @@
 
                                         </button>
 
+
                                     </form>
 
                                 </div>
@@ -427,6 +420,7 @@
 
     </div>
 
+                      
     <!-- ===================================================== -->
 <!-- EDIT USER MODAL -->
 <!-- ===================================================== -->

@@ -92,9 +92,33 @@ def delete_department(department_id):
 @jwt_required()
 def list_departments():
 
-    departments = Department.query.order_by(Department.name.asc()).all()
+    search = request.args.get("search", "").strip()
+
+    query = Department.query
+
+    if search:
+        query = query.filter(
+            Department.name.ilike(f"%{search}%")
+        )
+
+    departments = query.order_by(Department.name.asc()).all()
 
     return render_template(
         "project_tracker/add_department.html",
-        departments=departments
+        departments=departments,
+        search=search
     )
+
+@department_views.route("/departments/<int:department_id>/edit", methods=["POST"])
+@jwt_required()
+def edit_department(department_id):
+
+    department = Department.query.get_or_404(department_id)
+
+    department.name = request.form["name"]
+
+    db.session.commit()
+
+    flash("Department updated successfully.", "success")
+
+    return redirect(url_for("department_views.list_departments"))

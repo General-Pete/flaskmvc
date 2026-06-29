@@ -4051,69 +4051,108 @@ textarea {
 
 /*DEPARTMENT*/
 
+/* ==========================================
+   DEPARTMENT PAGE
+========================================== */
+
 .dept-page-header{
-    margin-bottom:30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:35px;
 }
 
 .dept-page-title{
-    font-size:48px;
+    font-size:42px;
     font-weight:800;
     color:#0f172a;
-    margin-bottom:10px;
+    margin-bottom:8px;
 }
 
 .dept-page-subtitle{
-    font-size:18px;
-    color:#475569;
+    font-size:17px;
+    color:#64748b;
 }
+
+
+.department-count{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:160px;
+    height:46px;
+    padding:0 20px;
+    background:#eff6ff;
+    color:#2563eb;
+    border-radius:999px;
+    font-weight:700;
+    font-size:16px;
+   
+}
+
+/* ==========================================
+   LAYOUT
+========================================== */
 
 .department-layout{
     display:grid;
-    grid-template-columns: 380px 1fr;
-    gap:24px;
+    grid-template-columns:360px 1fr;
+    gap:25px;
     align-items:start;
 }
 
+/* ==========================================
+   CARDS
+========================================== */
+
 .department-form-card,
 .department-table-card{
-    background:#ffffff;
-    border-radius:24px;
+    background:#fff;
+    border-radius:22px;
     padding:28px;
-    box-shadow:
-        0 10px 30px rgba(15,23,42,.08);
+    box-shadow:0 10px 30px rgba(15,23,42,.08);
 }
+
+/* ==========================================
+   LEFT CARD
+========================================== */
 
 .dept-card-header{
     display:flex;
     align-items:center;
-    gap:16px;
-    margin-bottom:24px;
-    padding-bottom:20px;
-    border-bottom:1px solid #e2e8f0;
+    gap:18px;
+    margin-bottom:25px;
+    padding-bottom:18px;
+    border-bottom:1px solid #e5e7eb;
 }
 
 .dept-card-icon{
-    width:60px;
-    height:60px;
-    border-radius:18px;
-    background:#eef4ff;
-    color:#2563eb;
+    width:58px;
+    height:58px;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:28px;
+    background:#eff6ff;
+    color:#2563eb;
+    border-radius:16px;
+    font-size:24px;
 }
 
 .dept-card-header h2{
     margin:0;
-    font-size:28px;
+    font-size:26px;
     color:#0f172a;
 }
 
 .dept-card-header p{
-    margin-top:4px;
+    margin-top:5px;
     color:#64748b;
+    font-size:15px;
 }
+
+/* ==========================================
+   FORM
+========================================== */
 
 .dept-form-group{
     margin-bottom:22px;
@@ -4126,36 +4165,30 @@ textarea {
     color:#1e293b;
 }
 
-.dept-form-group input,
-.dept-form-group textarea{
+.dept-form-group input{
     width:100%;
-    padding:16px;
-    border:1px solid #dbe2ea;
-    border-radius:14px;
+    height:48px;
+    padding:0 16px;
+    border:1px solid #dbe3ef;
+    border-radius:12px;
     font-size:15px;
-    background:#fff;
     transition:.2s;
 }
 
-.dept-form-group input:focus,
-.dept-form-group textarea:focus{
+.dept-form-group input:focus{
     outline:none;
     border-color:#2563eb;
     box-shadow:0 0 0 4px rgba(37,99,235,.15);
 }
 
-.dept-form-group textarea{
-    resize:none;
-}
-
 .dept-btn-add{
     width:100%;
+    height:48px;
     border:none;
+    border-radius:12px;
     background:#2563eb;
     color:#fff;
-    padding:16px;
-    border-radius:14px;
-    font-size:17px;
+    font-size:16px;
     font-weight:600;
     cursor:pointer;
     transition:.2s;
@@ -4169,32 +4202,58 @@ textarea {
     margin-right:8px;
 }
 
+/* ==========================================
+   TABLE HEADER
+========================================== */
+
 .dept-table-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:24px;
-    padding-bottom:20px;
-    border-bottom:1px solid #e2e8f0;
+    margin-bottom:18px;
 }
 
 .dept-table-header h2{
     margin:0;
-    font-size:32px;
+    font-size:30px;
     color:#0f172a;
 }
 
 .dept-table-header p{
-    margin-top:4px;
+    margin-top:5px;
     color:#64748b;
 }
 
-.department-count{
-    background:#eef4ff;
-    color:#2563eb;
-    padding:10px 18px;
-    border-radius:999px;
-    font-weight:700;
+/* ==========================================
+   SEARCH
+========================================== */
+
+.dept-search{
+    margin-bottom:20px;
+}
+
+.dept-search input{
+    width:100%;
+    height:46px;
+    border:1px solid #dbe3ef;
+    border-radius:12px;
+    padding:0 16px;
+    font-size:15px;
+    transition:.2s;
+}
+
+.dept-search input:focus{
+    outline:none;
+    border-color:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,.12);
+}
+
+/* ==========================================
+   TABLE
+========================================== */
+
+.dept-table-wrapper{
+    overflow-x:auto;
 }
 
 .department-table{
@@ -4202,57 +4261,64 @@ textarea {
     border-collapse:collapse;
 }
 
-.department-table thead th{
-    text-align:left;
-    padding:18px 12px;
-    color:#334155;
-    font-size:15px;
-    border-bottom:2px solid #e2e8f0;
-}
-
-.department-table tbody td{
-    padding:22px 12px;
-    border-bottom:1px solid #edf2f7;
-    color:#0f172a;
-}
-
-.department-table tbody tr:hover{
+.department-table thead{
     background:#f8fafc;
 }
 
-.dept-status-badge{
-    padding:8px 14px;
-    border-radius:999px;
-    font-size:13px;
+.department-table thead th{
+    padding:18px;
+    text-align:left;
+    color:#64748b;
+    font-size:14px;
     font-weight:700;
+    border-bottom:2px solid #e5e7eb;
 }
 
-.dept-status-badge.active{
-    background:#dcfce7;
-    color:#16a34a;
+.department-table tbody td{
+    padding:18px;
+    border-bottom:1px solid #eef2f7;
+    color:#0f172a;
+    vertical-align:middle;
 }
 
-.dept-status-badge.inactive{
-    background:#fee2e2;
-    color:#dc2626;
+.department-table tbody tr:hover{
+    background:#f8fbff;
+}
+
+.dept-info-name{
+    font-weight:700;
+    color:#0f172a;
+}
+
+/* ==========================================
+   ACTIONS
+========================================== */
+
+.dept-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.dept-actions form{
+    margin:0;
 }
 
 .dept-action-btn{
-    width:42px;
-    height:42px;
+    width:40px;
+    height:40px;
     display:flex;
     align-items:center;
     justify-content:center;
-    border-radius:12px;
-    text-decoration:none;
+    border-radius:10px;
     cursor:pointer;
+    border:none;
     transition:.2s;
 }
 
 .dept-edit-btn{
-    border:1px solid #2563eb;
+    background:#dbeafe;
     color:#2563eb;
-    background:#fff;
 }
 
 .dept-edit-btn:hover{
@@ -4261,54 +4327,94 @@ textarea {
 }
 
 .dept-delete-btn{
-    border:1px solid #ef4444;
-    color:#ef4444;
-    background:#fff;
+    background:#fee2e2;
+    color:#dc2626;
 }
 
 .dept-delete-btn:hover{
-    background:#ef4444;
+    background:#dc2626;
     color:#fff;
 }
 
+/* ==========================================
+   EMPTY STATE
+========================================== */
+
 .dept-empty-state{
     text-align:center;
-    padding:60px;
+    padding:70px;
     color:#64748b;
     border:2px dashed #cbd5e1;
-    border-radius:16px;
+    border-radius:18px;
 }
 
+/* ==========================================
+   MODAL
+========================================== */
+
+.dept-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.45);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.dept-modal-content{
+    position:relative;
+    width:500px;
+    max-width:90%;
+    background:#fff;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+
+.dept-modal-content h2{
+    margin-bottom:25px;
+    color:#0f172a;
+}
+
+.dept-close-modal{
+    position:absolute;
+    top:15px;
+    right:20px;
+    font-size:30px;
+    cursor:pointer;
+    color:#64748b;
+}
+
+.dept-close-modal:hover{
+    color:#2563eb;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
 @media(max-width:1100px){
+
+    .dept-page-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:20px;
+    }
 
     .department-layout{
         grid-template-columns:1fr;
     }
 
-    .department-table{
-        display:block;
-        overflow-x:auto;
-    }
-
-    .dept-page-title{
-        font-size:36px;
-    }
 }
 
-/*==================================================
-                    PEOPLE PAGE
-==================================================*/
-/*==================================================
-                PEOPLE PAGE
-==================================================*/
+/*PEOPLE PAGE*/
 
 .people-page{
     padding:30px;
 }
 
-/*==================================================
-                PAGE HEADER
-==================================================*/
+/*PAGE HEADER*/
 
 .people-header{
     display:flex;
@@ -4737,31 +4843,7 @@ textarea {
 
 }
 
-.user-avatar{
 
-    width:44px;
-
-    height:44px;
-
-    border-radius:50%;
-
-    background:linear-gradient(135deg,#2563eb,#3b82f6);
-
-    color:white;
-
-    font-size:18px;
-
-    font-weight:700;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    flex-shrink:0;
-
-}
 
 .user-name{
 
