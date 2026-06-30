@@ -26,7 +26,8 @@ def create_db(app):
             TaskNote,
             ProjectUpdateItem,
             ProjectRelationship,
-            ActivityLog
+            ActivityLog,
+            AuditLog
         )
 
         db.create_all()

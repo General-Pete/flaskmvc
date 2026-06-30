@@ -112,7 +112,7 @@ def create_person_action():
         department_id = current_user.department_id 
 
     try:
-        create_user(username, email, password, role, department_id)
+        create_user(username, email, password, role, department_id, performed_by=current_user.id)
         flash(f"Person {username} created.", "success")
 
     except ValueError as ex:
@@ -142,7 +142,7 @@ def update_person_role_action(user_id):
     role = request.form.get("role", "User")
 
     try:
-        update_user(user_id, role=role)
+        update_user(user_id, role=role, performed_by=current_user.id)
         flash("Role updated.", "success")
 
     except ValueError as ex:
@@ -169,7 +169,7 @@ def delete_person_action(user_id):
             return redirect(url_for("user_views.get_people_page"))
 
     try:
-        delete_user(user_id)
+        delete_user(user_id, performed_by=current_user.id)
         flash("Person deleted.", "success")
 
     except Exception:
@@ -222,7 +222,8 @@ def edit_person_action(user_id):
             username=username,
             email=email,
             role=role,
-            department_id=department_id
+            department_id=department_id,
+            performed_by=current_user.id
         )
 
         flash("User updated successfully.", "success")

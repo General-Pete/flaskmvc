@@ -90,7 +90,7 @@
         <!-- DEPARTMENT TABLE CARD -->
        
 
-        <div class="department-table-card">
+        <div id="departmentTable" class="department-table-card">
              
 
             <div class="dept-table-header">
@@ -237,6 +237,14 @@
 
                 </table>
 
+                <div class="table-pagination">
+
+                    <div id="departmentPageInfo"></div>
+
+                    <div id="departmentPaginationButtons"></div>
+
+                </div>
+
             </div>
 
             {% else %}
@@ -350,6 +358,74 @@ if(search){
     });
 
 }
+
+
+// ===========================
+// DEPARTMENT PAGINATION
+// ===========================
+
+// ===========================
+// DEPARTMENT PAGINATION
+// ===========================
+
+const table = document.getElementById("departmentTable");
+
+if(table){
+
+    const rowsPerPage = 10;
+
+    const tbody = table.querySelector("tbody");
+
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    const pageInfo = document.getElementById("departmentPageInfo");
+
+    const buttons = document.getElementById("departmentPaginationButtons");
+
+    function showPage(page){
+
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row,index)=>{
+
+            row.style.display =
+                (index >= start && index < end)
+                ? ""
+                : "none";
+
+        });
+
+        const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+        pageInfo.innerHTML =
+            `Showing ${start + 1}-${Math.min(end, rows.length)} of ${rows.length} Departments`;
+
+        buttons.innerHTML = "";
+
+        for(let i = 1; i <= totalPages; i++){
+
+            const btn = document.createElement("button");
+
+            btn.textContent = i;
+
+            if(i === page){
+                btn.classList.add("active");
+            }
+
+            btn.onclick = () => showPage(i);
+
+            buttons.appendChild(btn);
+
+        }
+
+    }
+
+    showPage(1);
+
+}
+
+
 
 </script>
 

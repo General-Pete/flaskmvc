@@ -4763,7 +4763,7 @@ textarea {
 
     overflow-x:auto;
 
-    border:1px solid #e2e8f0;
+    border:none;
 
     border-radius:18px;
 
@@ -4797,7 +4797,7 @@ textarea {
 
     color:#475569;
 
-    border-bottom:2px solid #e2e8f0;
+    border-bottom:none;
 
     white-space:nowrap;
 
@@ -5376,4 +5376,103 @@ textarea {
 
     }
 
+}
+
+/* ==========================
+   TABLE PAGINATION
+========================== */
+
+.table-pagination{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-top:20px;
+
+    padding-top:20px;
+
+    border-top:1px solid #e5e7eb;
+
+}
+
+#paginationButtons{
+
+    display:flex;
+
+    gap:8px;
+
+}
+
+#paginationButtons button{
+
+    width:38px;
+
+    height:38px;
+
+    border-radius:10px;
+
+    border:1px solid #dbe2ea;
+
+    background:white;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+}
+
+#paginationButtons button:hover{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+#paginationButtons button.active{
+
+    background:#2563eb;
+
+    color:white;
+
+    border-color:#2563eb;
+
+}
+
+.table-pagination{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px solid #e5e7eb;
+}
+
+#departmentPageInfo{
+    font-size:14px;
+    color:#64748b;
+    font-weight:600;
+}
+
+#departmentPaginationButtons{
+    display:flex;
+    gap:8px;
+}
+
+#departmentPaginationButtons button{
+    width:36px;
+    height:36px;
+    border:none;
+    border-radius:8px;
+    background:#e5e7eb;
+    cursor:pointer;
+    transition:.2s;
+}
+
+#departmentPaginationButtons button.active{
+    background:#2563eb;
+    color:#fff;
 }

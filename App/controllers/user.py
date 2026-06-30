@@ -1,5 +1,6 @@
 from App.models import User, Department
 from App.database import db
+from App.controllers.audit_log import log_audit
 
 import secrets
 import string
@@ -56,7 +57,7 @@ def create_department(name, description=None):
     return department
 
 
-def create_user(username, email, password, role="User", department_id=None):
+def create_user(username, email, password, role="User", department_id=None, performed_by=None):
 
     username = (username or "").strip()
     email = (email or "").strip().lower()
@@ -104,6 +105,14 @@ def create_user(username, email, password, role="User", department_id=None):
     db.session.add(new_user)
     db.session.commit()
 
+    log_audit(
+        user_id=performed_by,
+        action="CREATE",
+        module="Users",
+        record_id=new_user.id,
+            description=f"Created user '{new_user.username}'"  
+            )
+
     return new_user
 
 def get_user_by_username(username):
@@ -132,7 +141,7 @@ def get_all_users_json():
     return [user.get_json() for user in users]
 
 
-def update_user(id, username=None, email=None, role=None, department_id=None):
+def update_user(id, username=None, email=None, role=None, department_id=None, performed_by=None):
 
     user = get_user(id)
 
@@ -194,14 +203,31 @@ def update_user(id, username=None, email=None, role=None, department_id=None):
 
     db.session.commit()
 
+    log_audit(
+        user_id=performed_by,
+        action="UPDATE",
+        module="Users",
+        record_id=user.id,
+            description=f"Update user '{user.username}'"
+                    )
+
     return user
 
 
-def delete_user(id):
+def delete_user(id, performed_by=None):
     user = get_user(id)
 
     if not user:
         return None
+    
+
+    log_audit(
+        user_id=performed_by,
+        action="DELETE",
+        module="Users",
+        record_id=user.id,
+            description=f"Delete user '{user.username}'"
+    )
 
     db.session.delete(user)
     db.session.commit()

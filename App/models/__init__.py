@@ -1,3 +1,4 @@
+from App.database import db
 from App.models.department import Department
 from App.models.user import User
 
@@ -8,3 +9,4 @@ from App.models.task_note import TaskNote
 from App.models.project_update_item import ProjectUpdateItem
 from App.models.project_relationship import ProjectRelationship
 from App.models.activity_log import ActivityLog
+from .audit_log import AuditLog

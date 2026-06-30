@@ -228,7 +228,7 @@
 
             <div class="people-table-container">
 
-                <table class="people-table">
+                <table id="peopleTable" class="people-table">
 
                     <thead>
 
@@ -396,7 +396,18 @@
 
                 </table>
 
+                <div class="table-pagination">
+
+                <div id="pageInfo"></div>
+
+                <div id="paginationButtons"></div>
+
             </div>
+
+                </div>
+
+
+            
 
             {% else %}
 
@@ -413,10 +424,14 @@
                 </p>
 
             </div>
-
+            
             {% endif %}
+            
 
+            
         </div>
+
+
 
     </div>
 
@@ -623,6 +638,73 @@ window.onclick = function(event){
     }
 
 }
+
+// PAGINATION COUNTER
+
+const table = document.getElementById("peopleTable");
+
+if(table){
+
+    const rowsPerPage = 10;
+
+    const tbody = table.querySelector("tbody");
+
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    const pageInfo = document.getElementById("pageInfo");
+
+    const buttons = document.getElementById("paginationButtons");
+
+    let currentPage = 1;
+
+    function showPage(page){
+
+        currentPage = page;
+
+        const start = (page-1)*rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row,index)=>{
+
+            row.style.display =
+                index >= start && index < end
+                ? ""
+                : "none";
+
+        });
+
+        const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+        pageInfo.innerHTML =
+            `Showing ${start+1}-${Math.min(end, rows.length)} of ${rows.length} Users`;
+
+        buttons.innerHTML = "";
+
+        for(let i=1;i<=totalPages;i++){
+
+            const btn = document.createElement("button");
+
+            btn.innerHTML = i;
+
+            if(i === page){
+
+                btn.classList.add("active");
+
+            }
+
+            btn.onclick = () => showPage(i);
+
+            buttons.appendChild(btn);
+
+        }
+
+    }
+
+    showPage(1);
+
+}
+
+
 
 </script>
 
