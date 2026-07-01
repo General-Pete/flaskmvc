@@ -1,5 +1,12 @@
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from App.controllers.notification import(
+    create_notification,  
+    notify_execs,
+    notify_department_managers,
+    notify_assigned_user
+
+) 
 
 from App.database import db
 from App.models import (
@@ -406,6 +413,22 @@ def create_project_from_form(form, current_user):
         user_id=current_user.id
     )
 
+    # Notify all Executives
+    exec_users = User.query.filter_by(role="Exec").all()
+
+    notify_execs(
+        "Project Created",
+        f"{project.name} was created.",
+        f"/projects/{project.id}"
+    )
+
+    notify_department_managers(
+        project.department_id,
+        "Project Created",
+        f"{project.name} was created.",
+        f"/projects/{project.id}"
+    )
+    
     db.session.commit()
 
     return project
@@ -446,6 +469,19 @@ def update_project_from_form(project_id, form, current_user):
         action="Updated",
         details=f"Project updated: {project.name}",
         user_id=current_user.id
+    )
+
+    notify_execs(
+        "Project Updated",
+        f"{project.name} was updated.",
+        f"/projects/{project.id}"
+    )
+
+    notify_department_managers(
+        project.department_id,
+        "Project Updated",
+        f"{project.name} was updated.",
+        f"/projects/{project.id}"
     )
 
     db.session.commit()
@@ -608,6 +644,8 @@ def create_task_from_form(project_id, form, current_user):
     db.session.add(task)
     db.session.flush()
 
+    notify_assigned_user(task)
+
     log_activity(
         entity_type="Task",
         entity_id=task.id,
@@ -658,6 +696,21 @@ def update_task_from_form(task_id, form, user):
         details=f"Task updated. Old status: {old_status}, New status: {task.status}",
         user_id=user.id
     )
+
+    if old_status != "Completed" and task.status == "Completed":
+
+        notify_execs(
+        "Task Completed",
+        f"{task.title} has been completed.",
+        f"/projects/{task.project_id}/tasks"
+    )
+
+    notify_department_managers(
+        task.project.department_id,
+        "Task Completed",
+        f"{task.title} has been completed.",
+        f"/projects/{task.project_id}/tasks"
+    ) 
 
     db.session.commit()
 
@@ -846,6 +899,19 @@ def create_milestone_from_form(project_id, form, current_user):
         user_id=current_user.id
     )
 
+    notify_execs(
+        "Milestone Created",
+        f"{milestone.title} was created.",
+        f"/projects/{project.id}/milestones"
+    )
+
+    notify_department_managers(
+        project.department_id,
+        "Milestone Created",
+        f"{milestone.title} was created.",
+        f"/projects/{project.id}/milestones"
+    )
+
     db.session.commit()
 
     return milestone
@@ -877,6 +943,18 @@ def update_milestone_from_form(milestone_id, form, current_user):
         user_id=current_user.id
     )
 
+    notify_execs(
+        "Milestone Updated",
+        f"{milestone.title} was updated.",
+        f"/projects/{project.id}/milestones"
+    )
+
+    notify_department_managers(
+        project.department_id,
+        "Milestone Updated",
+        f"{milestone.title} was updated.",
+        f"/projects/{project.id}/milestones"
+    )
     db.session.commit()
 
     return milestone

@@ -3,3 +3,4 @@ from .user import *
 from .initialize import *
 from .project_controller import *
 from .audit_log import *
+from .notification import * 

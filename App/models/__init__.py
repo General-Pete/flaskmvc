@@ -10,3 +10,4 @@ from App.models.project_update_item import ProjectUpdateItem
 from App.models.project_relationship import ProjectRelationship
 from App.models.activity_log import ActivityLog
 from .audit_log import AuditLog
+from .notification import Notification

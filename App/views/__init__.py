@@ -8,9 +8,10 @@ from App.views.project_views import projects_bp
 from .departments import department_views
 from flask import Flask 
 from flask_mail import Mail 
+from .notification import notification_bp
 
 
-views = [user_views, index_views, auth_views, projects_bp, department_views] 
+views = [user_views, index_views, auth_views, projects_bp, department_views, notification_bp] 
 # blueprints must be added to this list
 
 mail = Mail()

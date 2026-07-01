@@ -49,18 +49,51 @@
                 {% endif %}
                 </div>
                 
+<div class="global-nav-right">
 
-                <div class="global-nav-right">
-                    <span>
-                        Signed in as 
-                        <strong>{{ current_user.username }}</strong>
-                        <span class="role-pill">{{ current_user.role }}</span>
-                    </span>
+    <div class="notification-wrapper">
 
-                    <a href="{{ url_for('auth_views.logout_action') }}" class="logout-link">
-                        Logout
-                    </a>
+        <button id="notificationBell" class="notification-btn">
+
+            <i class="fas fa-bell"></i>
+
+            <span id="notificationCount" class="notification-count">
+                0
+            </span>
+
+        </button>
+
+        <div id="notificationDropdown" class="notification-dropdown">
+
+            <div class="notification-header">
+                Notifications
+            </div>
+
+            <div id="notificationList">
+
+                <div class="notification-empty">
+                    No notifications
                 </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <span>
+        Signed in as
+        <strong>{{ current_user.username }}</strong>
+        <span class="role-pill">{{ current_user.role }}</span>
+    </span>
+
+    <a href="{{ url_for('auth_views.logout_action') }}" class="logout-link">
+        Logout
+    </a>
+
+</div>
+                
+
             </div>
         {% endif %}
     {% endblock %}
@@ -74,6 +107,97 @@
             </div>
         {% endif %}
     {% endwith %}
+  <script>
+
+const bell = document.getElementById("notificationBell");
+const dropdown = document.getElementById("notificationDropdown");
+const notificationList = document.getElementById("notificationList");
+const notificationCount = document.getElementById("notificationCount");
+
+async function loadNotifications() {
+
+    try {
+
+        const response = await fetch("/notifications");
+
+        if (!response.ok) {
+            notificationList.innerHTML =
+                "<div class='notification-empty'>Unable to load notifications.</div>";
+            return;
+        }
+
+        const notifications = await response.json();
+
+        notificationList.innerHTML = "";
+
+        const unread = notifications.filter(n => !n.is_read).length;
+        notificationCount.textContent = unread;
+
+        if (notifications.length === 0) {
+            notificationList.innerHTML =
+                "<div class='notification-empty'>No notifications</div>";
+            return;
+        }
+
+        notifications.forEach(n => {
+
+            notificationList.innerHTML += `
+                <a href="/notifications/${n.id}"
+                   class="notification-item ${n.is_read ? "" : "unread"}">
+
+                    <strong>${n.title}</strong>
+
+                    <div>${n.message}</div>
+
+                    <small>${n.created_at}</small>
+
+                </a>
+            `;
+
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        notificationList.innerHTML =
+            "<div class='notification-empty'>Error loading notifications.</div>";
+
+    }
+
+}
+
+bell.addEventListener("click", async function (e) {
+
+    e.stopPropagation();
+
+    dropdown.classList.toggle("show");
+
+    if (dropdown.classList.contains("show")) {
+        await loadNotifications();
+    }
+
+});
+
+document.addEventListener("click", function (e) {
+
+    if (
+        !bell.contains(e.target) &&
+        !dropdown.contains(e.target)
+    ) {
+        dropdown.classList.remove("show");
+    }
+
+});
+
+// Load unread count when page loads
+loadNotifications();
+
+// Refresh every 30 seconds
+setInterval(loadNotifications, 30000);
+
+</script>
 
     {% block content %}{% endblock %}
 
