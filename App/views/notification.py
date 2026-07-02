@@ -59,3 +59,20 @@ def open_notification(id):
     db.session.commit()
 
     return redirect(notification.link)
+
+@notification_bp.route("/notifications/read-all", methods=["POST"])
+@jwt_required()
+def mark_all_notifications_read():
+
+    Notification.query.filter_by(
+        user_id=current_user.id,
+        is_read=False
+    ).update(
+        {"is_read": True}
+    )
+
+    db.session.commit()
+
+    return jsonify({
+        "success": True
+    })

@@ -5695,3 +5695,50 @@ textarea {
     cursor:pointer;
 
 }
+
+.notification-header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:18px 20px;
+
+    background:#2d5cff;
+
+    color:#fff;
+
+    font-size:18px;
+    font-weight:700;
+
+    border-radius:18px 18px 0 0;
+
+}
+
+.mark-all-btn{
+
+    background:rgba(255,255,255,.15);
+
+    border:none;
+
+    color:white;
+
+    padding:6px 12px;
+
+    border-radius:8px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.mark-all-btn:hover{
+
+    background:rgba(255,255,255,.3);
+
+}

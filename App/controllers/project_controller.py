@@ -56,8 +56,7 @@ def can_head_manage_department(user, department_id):
     return user.department_id == department_id
 
 
-
-def can_view_project(user, project):
+#def can_view_project(user, project):
     if not user or not project:
         return False
 
@@ -68,8 +67,7 @@ def can_view_project(user, project):
         return user.department_id == project.department_id
 
     # Normal user only sees projects where they have an assigned task.
-    return any(task.assigned_user_id == user.id for task in project.tasks)
-
+    return any(task.assigned_user_id == user.id for task in project.tasks)#
  
 
 
@@ -241,15 +239,13 @@ def can_view_project(user, project):
     return any(task.assigned_user_id == user.id for task in project.tasks)
 
 
-def can_update_task(user, task):
+#def can_update_task(user, task):
     if not user or not task:
         return False
 
     if user.role in ["Admin","Head"]:
         return True
 
-   
-    
     return task.assigned_user_id == user.id
 
 

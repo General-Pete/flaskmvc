@@ -51,35 +51,41 @@
                 
 <div class="global-nav-right">
 
-    <div class="notification-wrapper">
+  <div class="notification-wrapper">
 
-        <button id="notificationBell" class="notification-btn">
+    <button id="notificationBell" class="notification-btn">
 
-            <i class="fas fa-bell"></i>
+        <i class="fas fa-bell"></i>
 
-            <span id="notificationCount" class="notification-count">
-                0
-            </span>
+        <span id="notificationCount" class="notification-count">
+            0
+        </span>
 
-        </button>
+    </button>
 
-        <div id="notificationDropdown" class="notification-dropdown">
+    <div id="notificationDropdown" class="notification-dropdown">
 
-            <div class="notification-header">
-                Notifications
-            </div>
+        <div class="notification-header">
 
-            <div id="notificationList">
+            <span>Notifications</span>
 
-                <div class="notification-empty">
-                    No notifications
-                </div>
+            <button id="markAllRead" class="mark-all-btn">
+                Mark all
+            </button>
 
+        </div>
+
+        <div id="notificationList">
+
+            <div class="notification-empty">
+                No notifications
             </div>
 
         </div>
 
     </div>
+
+</div>
 
     <span>
         Signed in as
@@ -131,7 +137,14 @@ async function loadNotifications() {
         notificationList.innerHTML = "";
 
         const unread = notifications.filter(n => !n.is_read).length;
-        notificationCount.textContent = unread;
+
+        if (unread > 0) {
+            notificationCount.textContent = unread;
+            notificationCount.style.display = "flex";
+        } else {
+            notificationCount.textContent = "";
+            notificationCount.style.display = "none";
+        }
 
         if (notifications.length === 0) {
             notificationList.innerHTML =
@@ -196,6 +209,32 @@ loadNotifications();
 
 // Refresh every 30 seconds
 setInterval(loadNotifications, 30000);
+
+
+document
+.getElementById("markAllRead")
+.addEventListener("click", function () {
+
+    fetch("/notifications/read-all", {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(() => {
+
+        document.querySelectorAll(".notification-item").forEach(item => {
+            item.classList.remove("unread");
+        });
+
+        const badge = document.getElementById("notificationCount");
+
+        badge.textContent = "";
+        badge.style.display = "none";
+
+        document.querySelectorAll(".notification-item").forEach(item => {
+            item.classList.remove("unread");
+        });
+
+});
 
 </script>
 
