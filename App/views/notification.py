@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, redirect
 from flask_jwt_extended import jwt_required, current_user
 
+
 from App.database import db
 from App.models import Notification
 
@@ -76,3 +77,17 @@ def mark_all_notifications_read():
     return jsonify({
         "success": True
     })
+
+@notification_bp.route("/notifications/delete/<int:id>", methods=["POST"])
+@jwt_required()
+def delete_notification(id):
+
+    notification = Notification.query.get_or_404(id)
+
+    if notification.user_id != current_user.id:
+        return jsonify({"success": False}), 403
+
+    db.session.delete(notification)
+    db.session.commit()
+
+    return jsonify({"success": True})

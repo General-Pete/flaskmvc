@@ -53,6 +53,7 @@
 
   <div class="notification-wrapper">
 
+    <!-- Bell -->
     <button id="notificationBell" class="notification-btn">
 
         <i class="fas fa-bell"></i>
@@ -63,29 +64,55 @@
 
     </button>
 
+
+    <!-- Dropdown -->
     <div id="notificationDropdown" class="notification-dropdown">
 
+        <!-- Header -->
         <div class="notification-header">
 
-            <span>Notifications</span>
+            <h3>Notifications</h3>
 
             <button id="markAllRead" class="mark-all-btn">
+
                 Mark all
+
             </button>
 
         </div>
 
-        <div id="notificationList">
+
+        <!-- Notifications -->
+        <div id="notificationList" class="notification-list">
 
             <div class="notification-empty">
+
                 No notifications
+
             </div>
+
+        </div>
+
+
+        <!-- Footer -->
+        <div class="notification-footer">
+
+            <button id="viewAllNotifications"
+                    class="view-all-btn">
+
+                View All Notifications
+
+                <i class="fas fa-chevron-right"></i>
+
+            </button>
 
         </div>
 
     </div>
 
 </div>
+
+
 
     <span>
         Signed in as
@@ -98,7 +125,7 @@
     </a>
 
 </div>
-                
+    </div>            
 
             </div>
         {% endif %}
@@ -113,12 +140,76 @@
             </div>
         {% endif %}
     {% endwith %}
-  <script>
+
+<!-- Notification Modal -->
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="notification-modal">
+
+    <div class="notification-modal-content">
+
+        <div class="notification-modal-header">
+
+            <h2>
+                <i class="fas fa-bell"></i>
+                All Notifications
+            </h2>
+
+            <button id="closeNotificationModal" class="close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+
+        </div>
+
+        <div id="modalNotificationList" class="modal-notification-list">
+
+            <!-- Loaded by JavaScript -->
+
+        </div>
+
+        <div class="notification-modal-footer">
+
+            <button id="modalMarkAllRead" class="modal-mark-btn">
+
+                <i class="fas fa-check-double"></i>
+
+                Mark All Read
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
 
 const bell = document.getElementById("notificationBell");
 const dropdown = document.getElementById("notificationDropdown");
 const notificationList = document.getElementById("notificationList");
 const notificationCount = document.getElementById("notificationCount");
+
+const modal = document.getElementById("notificationModal");
+const modalNotificationList = document.getElementById("modalNotificationList");
+
+const viewAllBtn = document.getElementById("viewAllNotifications");
+const closeModalBtn = document.getElementById("closeNotificationModal");
+const markAllBtn = document.getElementById("markAllRead");
+const modalMarkAllBtn = document.getElementById("modalMarkAllRead");
+
+function formatTime(dateString) {
+
+    const date = new Date(dateString);
+
+    date.setHours(date.getHours() - 4);
+
+    return date.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+    });
+
+}
 
 async function loadNotifications() {
 
@@ -126,121 +217,350 @@ async function loadNotifications() {
 
         const response = await fetch("/notifications");
 
-        if (!response.ok) {
-            notificationList.innerHTML =
-                "<div class='notification-empty'>Unable to load notifications.</div>";
-            return;
-        }
-
         const notifications = await response.json();
 
         notificationList.innerHTML = "";
 
         const unread = notifications.filter(n => !n.is_read).length;
 
-        if (unread > 0) {
-            notificationCount.textContent = unread;
-            notificationCount.style.display = "flex";
-        } else {
-            notificationCount.textContent = "";
-            notificationCount.style.display = "none";
-        }
+        notificationCount.style.display = unread ? "flex" : "none";
+        notificationCount.textContent = unread;
 
         if (notifications.length === 0) {
+
             notificationList.innerHTML =
-                "<div class='notification-empty'>No notifications</div>";
+            `<div class="notification-empty">
+                No notifications
+            </div>`;
+
             return;
+
         }
 
         notifications.forEach(n => {
 
             notificationList.innerHTML += `
-                <a href="/notifications/${n.id}"
-                   class="notification-item ${n.is_read ? "" : "unread"}">
+
+            <div class="notification-item ${n.is_read ? "" : "unread"}">
+
+                <a href="/notifications/${n.id}" class="notification-link">
 
                     <strong>${n.title}</strong>
 
                     <div>${n.message}</div>
 
-                    <small>${n.created_at}</small>
+                    <small>${formatTime(n.created_at)}</small>
 
                 </a>
+
+                <button class="delete-notification"
+                        data-id="${n.id}">
+
+                    <i class="fas fa-trash"></i>
+
+                </button>
+
+            </div>
+
             `;
 
         });
 
     }
-    catch (err) {
 
-        console.error(err);
+    catch(err){
 
-        notificationList.innerHTML =
-            "<div class='notification-empty'>Error loading notifications.</div>";
+        console.log(err);
 
     }
 
 }
 
-bell.addEventListener("click", async function (e) {
+
+
+async function loadNotificationsModal(){
+
+    try{
+
+        const response = await fetch("/notifications");
+
+        const notifications = await response.json();
+
+        modalNotificationList.innerHTML = "";
+
+        if(notifications.length===0){
+
+            modalNotificationList.innerHTML=`
+
+            <div class="notification-empty">
+
+                <i class="fas fa-bell-slash"></i>
+
+                <h3>No Notifications</h3>
+
+                <p>You're all caught up.</p>
+
+            </div>
+
+            `;
+
+            return;
+
+        }
+
+        notifications.forEach(n=>{
+
+            let icon="fa-folder";
+            let colour="#3b82f6";
+
+            if(n.title.includes("Task")){
+                icon="fa-list-check";
+                colour="#22c55e";
+            }
+
+            if(n.title.includes("Milestone")){
+                icon="fa-flag-checkered";
+                colour="#f59e0b";
+            }
+
+            if(n.title.includes("Announcement")){
+                icon="fa-bullhorn";
+                colour="#06b6d4";
+            }
+
+       modalNotificationList.innerHTML += `
+
+<div class="modal-notification ${n.is_read ? "" : "unread"}">
+
+    ${!n.is_read ? '<div class="notification-dot"></div>' : ""}
+
+    <div class="notification-icon" style="background:${colour};">
+
+        <i class="fas ${icon}"></i>
+
+    </div>
+
+    <a href="/notifications/${n.id}" class="notification-link">
+
+        <div class="notification-text">
+
+            <h4>${n.title}</h4>
+
+            <p>${n.message}</p>
+
+           <span class="notification-date">
+                ${formatTime(n.created_at)}
+        </span>
+
+        </div>
+
+    </a>
+
+    <button
+        class="delete-modal-notification"
+        data-id="${n.id}">
+
+        <i class="fas fa-trash"></i>
+
+    </button>
+
+</div>
+
+`;
+
+        });
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+
+
+/* Bell */
+
+bell.addEventListener("click",async(e)=>{
 
     e.stopPropagation();
 
     dropdown.classList.toggle("show");
 
-    if (dropdown.classList.contains("show")) {
+    if(dropdown.classList.contains("show")){
+
         await loadNotifications();
+
     }
 
 });
 
-document.addEventListener("click", function (e) {
 
-    if (
+
+/* Close dropdown */
+
+document.addEventListener("click",(e)=>{
+
+    if(
+
         !bell.contains(e.target) &&
+
         !dropdown.contains(e.target)
-    ) {
+
+    ){
+
         dropdown.classList.remove("show");
+
     }
 
 });
 
-// Load unread count when page loads
+
+
+/* View All */
+
+viewAllBtn.addEventListener("click",async()=>{
+
+    dropdown.classList.remove("show");
+
+    modal.classList.add("show");
+
+    await loadNotificationsModal();
+
+});
+
+
+
+/* Close Modal */
+
+closeModalBtn.addEventListener("click",()=>{
+
+    modal.classList.remove("show");
+
+});
+
+
+
+modal.addEventListener("click",(e)=>{
+
+    if(e.target===modal){
+
+        modal.classList.remove("show");
+
+    }
+
+});
+
+
+
+/* Mark all */
+
+markAllBtn.addEventListener("click",async()=>{
+
+    await fetch("/notifications/read-all",{
+
+        method:"POST"
+
+    });
+
+    loadNotifications();
+
+});
+
+
+
+modalMarkAllBtn.addEventListener("click",async()=>{
+
+    await fetch("/notifications/read-all",{
+
+        method:"POST"
+
+    });
+
+    loadNotifications();
+
+    loadNotificationsModal();
+
+});
+
+
+
+/* Delete */
+
+document.addEventListener("click",async(e)=>{
+
+    const btn=e.target.closest(".delete-notification");
+
+    if(!btn) return;
+
+    e.preventDefault();
+
+    e.stopPropagation();
+
+    await fetch(`/notifications/delete/${btn.dataset.id}`,{
+
+        method:"POST"
+
+    });
+
+    loadNotifications();
+
+    loadNotificationsModal();
+
+});
+
+document.addEventListener("click", function(e){
+
+    const btn = e.target.closest(".delete-modal-notification");
+
+    if(!btn) return;
+
+    e.preventDefault();
+
+    e.stopPropagation();
+
+    const id = btn.dataset.id;
+
+    fetch(`/notifications/delete/${id}`,{
+
+        method:"POST"
+
+    })
+
+    .then(r=>r.json())
+
+    .then(data=>{
+
+        if(data.success){
+
+            loadNotifications();
+
+            loadNotificationsModal();
+
+        }
+
+    });
+
+});
+
+
+
+/* Initial Load */
+
 loadNotifications();
 
-// Refresh every 30 seconds
-setInterval(loadNotifications, 30000);
-
-
-document
-.getElementById("markAllRead")
-.addEventListener("click", function () {
-
-    fetch("/notifications/read-all", {
-        method: "POST"
-    })
-    .then(response => response.json())
-    .then(() => {
-
-        document.querySelectorAll(".notification-item").forEach(item => {
-            item.classList.remove("unread");
-        });
-
-        const badge = document.getElementById("notificationCount");
-
-        badge.textContent = "";
-        badge.style.display = "none";
-
-        document.querySelectorAll(".notification-item").forEach(item => {
-            item.classList.remove("unread");
-        });
-
-});
+setInterval(loadNotifications,30000);
 
 </script>
+
 
     {% block content %}{% endblock %}
 
     {% block scripts %}{% endblock %}
+
 
 </body>
 </html>
