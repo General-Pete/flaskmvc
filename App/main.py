@@ -1,3 +1,7 @@
+from App.controllers.notification import (
+    create_deadline_notifications, 
+    create_task_deadline_notifications
+    )
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads
 from flask_cors import CORS
@@ -42,6 +46,12 @@ def create_app(overrides={}):
     configure_uploads(app, photos)
 
     init_db(app)
+
+    with app.app_context():
+        create_deadline_notifications()
+        create_task_deadline_notifications()
+
+  
 
     add_views(app)
 
