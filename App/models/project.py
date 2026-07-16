@@ -16,11 +16,18 @@ class Project(db.Model):
         index=True
     )
 
+    created_by = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+    
     department = db.relationship(
         "Department",
         back_populates="projects"
     )
 
+    
     name = db.Column(db.String(200), nullable=False, index=True)
     description = db.Column(db.Text, nullable=True)
 
@@ -42,11 +49,17 @@ class Project(db.Model):
     is_archived = db.Column(db.Boolean, nullable=False, default=False)
 
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
     updated_at = db.Column(
         db.DateTime,
         nullable=False,
         default=datetime.utcnow,
         onupdate=datetime.utcnow
+    )
+
+    creator= db.relationship(
+        "User",
+        backref="projects_created"
     )
 
     tasks = db.relationship(

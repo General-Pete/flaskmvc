@@ -385,6 +385,7 @@ def create_project_from_form(form, current_user):
         status=form.get("status", "Not Started"),
         priority=form.get("priority", "Medium"),
         department_id=current_user.department_id,
+        created_by=current_user.id,
         budget_amount=parse_decimal(form.get("budget_amount")),
         budget_tracker_value=form.get("budget_tracker_value", "").strip() or None,
         expected_outcome=form.get("expected_outcome", "").strip() or None,

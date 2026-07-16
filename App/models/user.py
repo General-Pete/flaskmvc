@@ -43,6 +43,13 @@ class User(db.Model):
         index=True
     )
 
+    project_created = db.relationship(
+        "Project",
+        foreign_keys="Project.created_by",
+        back_populates="creator",
+        lazy=True
+    )
+
     department = db.relationship(
         "Department",
         back_populates="users"
